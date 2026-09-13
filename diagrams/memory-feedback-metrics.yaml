@@ -1,0 +1,36 @@
+title: Memory Feedback Metrics
+subtitle: Memory should prove that it helped instead of simply becoming more elaborate.
+diagrams:
+  - type: component_stack
+    title: Measurement loop
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Agent run with retrieved memory
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - retrieved ids
+          - injected tokens
+          - validation result
+      - component: node-only
+        compact: true
+        nodes:
+          - Runtime metrics artifact
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - useful
+          - ignored
+          - contradicted
+      - component: node-only
+        compact: true
+        nodes:
+          - Retrieval tuning
+      - component: double-node-without-bottom-line
+        nodes:
+          - update ranking
+          - text: improve memory policy
+            down_arrow: true
+            down_label: better next run

@@ -1,0 +1,38 @@
+title: Memory Types and Policy
+subtitle: Different memories need different creation, expiry, approval, and retrieval rules.
+diagrams:
+  - type: component_stack
+    title: Typed memory
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Memory candidate
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - project-profile
+          - architecture-fact
+          - decision
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - failure-pattern
+          - command-result
+          - user-preference
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - integration-fact
+          - security-constraint
+          - retrieval-feedback
+      - component: node-only
+        compact: true
+        nodes:
+          - Policy gates
+      - component: double-node-without-bottom-line
+        nodes:
+          - promote or skip
+          - text: active or superseded
+            down_arrow: true
+            down_label: retrieved only when useful

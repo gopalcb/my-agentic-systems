@@ -133,6 +133,286 @@ export const ARTICLES: Article[] = [
     ],
   },
   {
+    slug: 'aws-memory-architecture-plan',
+    title: 'AWS Architecture Design Plan for My Codex Agent Memory System',
+    kicker: 'Memory expansion plan',
+    readingTime: '15 min read',
+    diagram: 'diagrams/aws-memory-architecture.html',
+    diagramAlt: 'AWS architecture for Codex agent memory using API Gateway, Lambda authorizer, memory save and get Lambdas, S3, DynamoDB, Bedrock, and a vector index.',
+    diagramSize: 'tall',
+    summary:
+      'A practical AWS plan for moving my local Codex agent memory system toward a durable cloud-backed memory layer without losing the simple rules that make the local system trustworthy.',
+    sections: [
+      {
+        heading: 'The architecture I want to build toward',
+        paragraphs: [
+          'The memory system in my Codex agent setup should eventually have two lives. Locally, it should stay fast, inspectable, and close to the repository. In AWS, it should become durable enough to support long-running work across machines, sessions, and future agent tools. The cloud layer should not replace the local runtime. It should give the runtime a reliable place to save memory, fetch memory, and run lightweight processing when that is the cheaper and cleaner path.',
+          'The high-level AWS design starts with API Gateway. I want clear endpoints for different purposes instead of one vague memory API. `/agent/auth` handles authentication. `/agent/memory/save` receives reviewed memory candidates and stores them. `/agent/memory/get` returns scoped context for a new agent run. Each endpoint sits behind a Lambda authorizer so requests are checked before the memory Lambdas do any real work.',
+          'Behind those endpoints, Lambda functions keep the processing small and focused. One function validates authentication. One function saves memory records. One function retrieves memory context. Supporting functions can classify memory, redact sensitive values, create embeddings, or call Bedrock for small summarization and labeling tasks. This keeps the architecture modular enough that I can improve one step without rewriting the whole memory layer.'
+        ],
+      },
+      {
+        heading: 'Why this belongs outside the main runtime',
+        paragraphs: [
+          'The local runtime should stay responsible for agent execution, workflow steps, events, final artifacts, and prompt assembly. AWS should handle durable storage and optional cloud processing. That boundary is important. If the cloud side starts making workflow decisions, the agent system becomes harder to reason about. A local run should still be able to say what happened, what memory was used, and which files or commands proved the current truth.',
+          'The cloud memory service should behave like a reliable assistant to the runtime. It receives structured records, stores them with provenance, and returns small context blocks. It should not silently push giant summaries into every prompt. It should not override current source. It should not turn every old note into a fact. Good memory helps the agent start with better context, then the agent still verifies the repository in front of it.',
+          'This is why the API is intentionally narrow. A save endpoint is for durable memory writes. A get endpoint is for retrieval. Authentication is its own concern. Model calls are a support step, not the owner of memory truth.'
+        ],
+      },
+      {
+        heading: 'The save path',
+        paragraphs: [
+          'A memory save should begin only after the agent run has produced evidence. The local system already has the right raw material: runtime events, changed files, final artifacts, validation output, and operator feedback. The cloud save path should receive a memory candidate that has already been shaped into a useful record: kind, scope, source, confidence, status, and content.',
+          'Before the record reaches durable storage, the save Lambda should run a small set of gates. It should check authentication context, validate the schema, reject unexpected paths, scan for secrets, classify the memory kind, and decide whether the record is a candidate or an accepted active memory. A save endpoint that stores everything immediately will become noisy very quickly.',
+          'S3 is a good place for raw evidence and larger artifacts. DynamoDB is a good place for the memory index, metadata, status, source pointers, confidence, privacy, and retrieval filters. A vector index is the better home for semantic search once the system needs it. DynamoDB can keep embedding text, embedding model metadata, and links to vector entries, but I would not make it the main semantic search engine unless the retrieval needs are still very small.'
+        ],
+        diagram: {
+          src: 'diagrams/aws-memory-save-flow.html',
+          alt: 'Memory save flow from completed local Codex work through candidate review, redaction, classification, and durable AWS storage.',
+          size: 'tall',
+        },
+      },
+      {
+        heading: 'The get path',
+        paragraphs: [
+          'The memory get path should start with scope. A request should say which repository, project, service, agent, task type, and prompt it is working with. Without scope, retrieval becomes a pile of related-looking notes. With scope, the service can return memory that is useful for the current task instead of memory that merely sounds familiar.',
+          'The retrieval Lambda can query DynamoDB for exact filters first: repo, project, service, memory kind, status, privacy, and validity. Then it can ask the vector index for semantic matches when exact wording is not enough. The result should be merged, reranked, and trimmed before it returns to the local agent. The response should be small enough to fit comfortably into a prompt and clear enough that the agent knows why each memory was included.',
+          'For example, if I ask Codex to work on the controller UI, the memory service should prefer active controller-specific records, known validation commands, recent failures, and durable strategy preferences. It should not return a random old thought about a different project just because some words overlap.'
+        ],
+        diagram: {
+          src: 'diagrams/aws-memory-get-flow.html',
+          alt: 'Memory retrieval flow from a new agent request through scoped filters, vector search, evidence lookup, reranking, and bounded prompt injection.',
+          size: 'tall',
+        },
+      },
+      {
+        heading: 'Where Bedrock fits',
+        paragraphs: [
+          'Bedrock should be used where it reduces waste. Some memory tasks do not need the full coding agent context. Classifying a memory candidate, producing a short title, summarizing a final artifact, or creating an embedding request can be handled by a smaller model path. That can reduce token consumption in the main Codex session and keep the expensive reasoning budget focused on actual engineering work.',
+          'The useful rule is simple: use Bedrock for lightweight memory processing, not for replacing the agent runtime. The runtime owns the engineering loop. Bedrock can help label, compress, summarize, embed, and occasionally rerank memory records. If a task needs deep repository reasoning, current file inspection, and code edits, it belongs back in the normal Codex flow.',
+          'This also gives the system a clean cost story. The memory layer can process small records in small calls. The agent session receives a compact context block instead of doing the same classification and summarization work every time.'
+        ],
+      },
+      {
+        heading: 'Security and data boundaries',
+        paragraphs: [
+          'Authentication cannot be decorative here. Memory may contain project paths, technical decisions, failure details, and working preferences. API Gateway should use the Lambda authorizer across the memory routes. The authorizer can validate the caller, attach identity context, and allow or deny the request before the memory function runs.',
+          'The save Lambda should redact secrets before anything is written to S3, DynamoDB, or a vector index. The get Lambda should filter by privacy, project, and authorization context. S3 buckets should use encryption, versioning where useful, and lifecycle policies for artifacts that do not need to live forever. DynamoDB records should keep enough provenance to explain why a memory exists and enough status to stop stale memory from being injected.',
+          'The most important security habit is not a single AWS service. It is refusing to treat memory as harmless text. Memory becomes part of future reasoning, so it needs the same care as any other project artifact.'
+        ],
+      },
+      {
+        heading: 'What I would build first',
+        paragraphs: [
+          'I would start small. First, implement `/agent/memory/save` for accepted memory records only, with schema validation, redaction, DynamoDB metadata, and S3 evidence pointers. Then implement `/agent/memory/get` with exact scoped retrieval from DynamoDB. Only after that path proves useful would I add embeddings and a vector index.',
+          'That order matters because it keeps the first version understandable. If local memory is messy, vector search will only make the mess look smarter. The first goal is clean records. The second goal is scoped retrieval. The third goal is hybrid search. The fourth goal is feedback metrics that prove the memory is actually helping.',
+          'The AWS architecture should make my Codex agent system more durable, not more mysterious. If a future agent cannot explain which memory came back, why it came back, and where it came from, the architecture is not finished.'
+        ],
+        bullets: [
+          'Keep local events and source files as the strongest evidence.',
+          'Use API Gateway routes that describe the operation clearly.',
+          'Attach a Lambda authorizer to memory endpoints before processing.',
+          'Use S3 for larger evidence and DynamoDB for indexed memory metadata.',
+          'Add vector retrieval only after typed memory records are reliable.',
+          'Use Bedrock for small memory tasks that should not spend the main agent budget.'
+        ],
+      },
+      {
+        heading: 'Source notes',
+        paragraphs: [
+          'This plan follows AWS patterns for API Gateway with Lambda authorizers, Lambda proxy style request handling, durable S3 object storage, Bedrock model invocation through `Converse` or `InvokeModel`, and Bedrock Knowledge Bases using vector stores such as OpenSearch Serverless. I would still verify service limits, region support, IAM policy details, and cost before turning this into production infrastructure.'
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'memory-expansion-roadmap',
+    title: 'Memory Expansion Roadmap for My Codex Agent System',
+    kicker: 'Memory expansion plan',
+    readingTime: '16 min read',
+    diagram: 'diagrams/memory-expansion-roadmap.html',
+    diagramAlt: 'Roadmap from hardened local memory to project-aware scope, consolidation, hybrid retrieval, and feedback metrics.',
+    diagramSize: 'tall',
+    summary:
+      'A detailed but practical plan for growing agent memory from local event-derived notes into typed, scoped, reviewed, and measured recall that improves future Codex work.',
+    sections: [
+      {
+        heading: 'The memory problem I am solving',
+        paragraphs: [
+          'My agent system should get better the more it works with my projects. That does not mean it should remember everything. It means it should remember the right things: project entry points, validation commands, architecture boundaries, recurring failures, user preferences, and decisions that are hard to rediscover later.',
+          'The memory expansion plan starts from a grounded rule: source files, tests, runtime events, ADRs, and project docs are stronger than generated summaries. Memory is guidance. It helps the agent decide where to look first, what to be careful about, and which past lesson might matter. It should never become a shortcut around current evidence.',
+          'The goal is a system where future Codex sessions feel less cold. The agent should know the shape of the project, understand past mistakes, and use my working preferences without needing me to repeat them every time.'
+        ],
+      },
+      {
+        heading: 'Phase 1: harden local memory',
+        paragraphs: [
+          'The first phase is local and disciplined. Each memory record should have a schema version, kind, scope, confidence, status, source events, creation time, update time, tags, and provenance. That metadata is not ceremony. It is how the system keeps memory searchable, reviewable, and safe to inject into future prompts.',
+          'Candidate storage and accepted memory storage should be separate. A completed run can produce candidates, but only high-signal candidates should become active memory. A failure that will matter again is worth keeping. A generic summary that says the agent changed some files is usually not. The promotion policy is where the system learns restraint.',
+          'This phase also needs tests. Retrieval budgets, stale records, duplicates, path containment, and redaction should be tested before the system gets more ambitious. If memory cannot behave locally, adding AWS or vector search will only make the failure harder to see.'
+        ],
+        diagram: {
+          src: 'diagrams/memory-types-policy.html',
+          alt: 'Typed memory policy showing project profiles, architecture facts, decisions, failures, command results, preferences, integration facts, security constraints, and retrieval feedback.',
+          size: 'tall',
+        },
+      },
+      {
+        heading: 'The memory types',
+        paragraphs: [
+          'The plan should use explicit memory kinds. A `project-profile` explains what a project is, how it runs, and how it is validated. An `architecture-fact` records stable boundaries. A `decision` captures rationale and status. A `failure-pattern` records an error signature, root cause, and verified fix. A `command-result` saves important environment behavior.',
+          'Other kinds serve different jobs. A `user-preference` stores durable working style that is not already in project instructions. A `project-glossary` maps local names and acronyms. A `dependency-fact` records version constraints. An `integration-fact` stores external API or auth details with review dates. A `security-constraint` protects secrets and permission boundaries. An `open-question` keeps unresolved assumptions from becoming facts. `retrieval-feedback` records whether memory actually helped.',
+          'Putting these into one generic note bucket would be easier at first and worse later. Different memories deserve different rules for creation, expiry, review, and retrieval.'
+        ],
+      },
+      {
+        heading: 'Phase 2: project-aware memory',
+        paragraphs: [
+          'The next phase is scope. A monorepo can hold many systems, and agent memory should not treat them all as one flat pile. Before serious work starts inside a project, the project should have a small scaffold: `AGENTS.md`, `ARCHITECTURE.md`, `code-map.yaml`, `project.yaml`, and `README.md`.',
+          '`project.yaml` should declare project id, stack, default agent, validation commands, deployment mode, and memory namespace. That gives the resolver a clean way to retrieve project-specific memory before work begins. It also gives future agents a predictable place to look before scanning half the repository.',
+          'This is where memory becomes useful without becoming noisy. A controller UI task should pull controller UI facts. A runtime workflow task should pull workflow facts. A diagram builder article should pull builder facts. Good scope keeps the agent focused.'
+        ],
+      },
+      {
+        heading: 'Phase 3: consolidation',
+        paragraphs: [
+          'Raw run summaries should not pile up forever. A consolidation command should merge repeated failure summaries into one stronger `failure-pattern`, promote repeated architecture facts into `architecture-fact`, archive summaries that are fully represented by better records, and mark contradicted records as superseded.',
+          'This should be a deterministic command, not a hidden scheduler at the beginning. A command is easier to test, easier to run on demand, and easier to explain. The system can add automation later, once there is a real operational need.',
+          'Consolidation is also where project docs can improve. If a memory fact has been verified from source inspection, the system can propose updates to `ARCHITECTURE.md` or `code-map.yaml`. But that should happen only when the source backs it up. Generated memory should not rewrite project truth by itself.'
+        ],
+      },
+      {
+        heading: 'Phase 4: hybrid retrieval',
+        paragraphs: [
+          'Local lexical retrieval is a strong first version because exact matches matter. File paths, command names, error strings, agent ids, workflow ids, and API routes are often the best clues. But over time, exact words will not be enough. A past lesson about approval before task launch may be relevant even when the new request uses different language.',
+          'That is where hybrid retrieval becomes useful. The system should determine scope, retrieve exact matches, retrieve semantic matches from a vector index, filter by kind and status, merge scores, rerank by confidence and source quality, and compress the result to a strict token budget. The output should be a small memory block, not a bag of notes.',
+          'For a production-grade AWS path, OpenSearch Serverless is a sensible first vector search target because it supports vector search and full-text search with filters. Bedrock Knowledge Bases can also help when the system grows into a managed RAG path. The durable source of truth should still be the memory records themselves.'
+        ],
+      },
+      {
+        heading: 'Phase 5: performance feedback',
+        paragraphs: [
+          'The memory system should measure whether it helps. It should record how many memories were retrieved, how many tokens were injected, which memory ids were used, whether the final work referenced them, whether validation succeeded, and whether any retrieved memory was stale or contradicted.',
+          'Those metrics give the system a way to tune itself. Maybe some memory kinds are too noisy. Maybe old command results should decay faster. Maybe vector search is useful for architecture work but not for quick syntax fixes. Without measurement, memory can feel impressive while quietly making the agent worse.',
+          'A good feedback loop should be honest enough to say when memory was ignored. That is still useful. It means the retrieval policy can learn what not to bring back next time.'
+        ],
+        diagram: {
+          src: 'diagrams/memory-feedback-metrics.html',
+          alt: 'Memory feedback and metrics loop showing retrieved ids, injected tokens, validation result, usefulness labels, and retrieval tuning.',
+          size: 'tall',
+        },
+      },
+      {
+        heading: 'What better memory should feel like',
+        paragraphs: [
+          'Better memory should feel calm. The agent should not sound like it has read a thousand private notes. It should simply start in a better place. It should know the likely project, the expected validation path, the common mistakes, and the preferences that apply to the work.',
+          'The final behavior I want is practical. When I ask for a change, Codex should retrieve a few relevant records, inspect the current source, decide whether the memory still applies, and then work. If a memory is stale, the agent should say so and the system should mark it for review. If a memory helps, the run should record that too.',
+          'That is the kind of memory system worth building: typed, scoped, reviewed, measured, and humble enough to let the current repository win.'
+        ],
+      },
+    ],
+    example: {
+      title: 'Example memory record shape',
+      code: `{
+  "schema_version": 1,
+  "id": "controller-ui-validation-browser-evidence",
+  "kind": "user-preference",
+  "scope": {
+    "repo": "agent-monorepo",
+    "project": "applications/controller-ui",
+    "service": "frontend"
+  },
+  "source": {
+    "run_id": "run-2026-09-13",
+    "files": ["applications/controller-ui/src/app"]
+  },
+  "content": "For UI changes, verify rendered browser behavior and report screenshot, console, and network evidence separately.",
+  "confidence": 0.86,
+  "privacy": "normal",
+  "status": "active",
+  "tags": ["ui", "validation", "browser-evidence"]
+}`,
+    },
+  },
+  {
+    slug: 'core-diagram-builder-approach',
+    title: 'The Core Diagram Builder Behind My Agent Articles',
+    kicker: 'Diagram builder',
+    readingTime: '12 min read',
+    diagram: 'diagrams/diagram-builder-core.html',
+    diagramAlt: 'Core builder flow from architecture idea to declarative YAML, reusable component libraries, validation, static HTML, and article iframe.',
+    diagramSize: 'tall',
+    summary:
+      'A focused look at the standalone diagram builder core: how YAML, reusable libraries, validation, and static HTML output make architecture diagrams repeatable for agent-system articles.',
+    sections: [
+      {
+        heading: 'Why I wanted a builder instead of one-off drawings',
+        paragraphs: [
+          'When I write about an agent system, the diagram is not decoration. It is part of the explanation. A good diagram should show ownership, flow, handoff, storage, feedback, and boundaries. If every diagram is manually drawn from scratch, the style drifts and small updates become annoying.',
+          'The core diagram builder solves that by turning declarative YAML into static HTML diagrams. I describe the structure in a small file. The builder loads reusable component libraries, validates the requested shape, and renders a transparent-background diagram that can sit inside an article page.',
+          'For now, this article is only about the core builder under `standalone-systems/agentic-diagram-and-article-builder/builder-libs`. I am intentionally leaving the UI and service layers out of scope. The important idea is the authoring model: diagrams should be repeatable, inspectable, and easy for an agent to produce consistently.'
+        ],
+      },
+      {
+        heading: 'The builder model',
+        paragraphs: [
+          'The input document is simple. It has a title, an optional subtitle, and a `diagrams` list. Each diagram can be a flow, tree, event bus, component, component stack, or component gallery. That gives enough variety for articles without turning the builder into a full drawing application.',
+          '`diagram_builder.py` owns the CLI entry point. It reads YAML, loads component catalogs, validates fields, renders HTML, and writes the output file. The generated HTML links to `assets/styles.css`, which keeps the diagram visual language consistent across pages.',
+          'This matters for agent-written articles. The agent can produce a small YAML file instead of trying to hand-code every connector. The result is easier to review because the source says what the diagram means.'
+        ],
+        diagram: {
+          src: 'diagrams/diagram-builder-libraries.html',
+          alt: 'Diagram builder library layers showing core components, composite components, text composites, pattern recipes, and article diagram YAML.',
+          size: 'tall',
+        },
+      },
+      {
+        heading: 'The reusable library approach',
+        paragraphs: [
+          'The library split keeps the builder practical. `core-components.yaml` defines small pieces such as labels, arrows, tree labels, event-bus nodes, and plain rectangles. `composite-components.yaml` defines larger fan-in and fan-out geometry such as two-node and three-node components. `text-composite-components.yaml` gives conceptual variants. `pattern-recipes.yaml` gives copyable starting points.',
+          'That design is useful because most architecture articles repeat a small set of shapes. A user request enters a system. It branches into handlers. It lands in storage. It comes back as context. The builder should make those common forms easy without hiding the meaning of the diagram.',
+          'The current article diagrams use `component_stack` heavily because it is a good fit for architecture writing. It lets me stack a source, gateway, processing layer, storage layer, and output layer with consistent connector geometry.'
+        ],
+      },
+      {
+        heading: 'Validation is part of the writing workflow',
+        paragraphs: [
+          'A diagram builder should fail early when the YAML asks for an impossible shape. Three-node components should receive three nodes. Two-node components should receive two. Required fields should be present. Unknown component names should be rejected. These checks make the tool more useful for agents because mistakes are caught before publishing.',
+          'Validation also keeps the visual language stable. If a compound component already owns its connector geometry, the neighboring element should usually be `node-only`. That kind of rule sounds small, but it prevents duplicated arrows and crowded diagrams.',
+          'The best part is that the article source stays readable. I can review the YAML and understand the diagram without opening a drawing tool.'
+        ],
+      },
+      {
+        heading: 'How it fits my article site',
+        paragraphs: [
+          'The article site embeds each generated diagram as a static HTML iframe. The diagram page has a transparent background, while the article frame supplies the border and caption. That gives each article a consistent reading experience and lets the builder remain independent from Angular.',
+          'For GitHub Pages, static HTML output is a good fit. There is no runtime service to start and no API needed just to render a diagram. The build copies the diagram assets into the published `docs/` folder with the rest of the Angular app.',
+          'The key publishing requirement is height. Architecture diagrams should render completely without inner scrolling, including on tablet and mobile. That is why the article frame gives tall diagrams more vertical room and why the diagrams themselves stay compact.'
+        ],
+      },
+      {
+        heading: 'Future improvement plan',
+        paragraphs: [
+          'The next improvements should make authoring and publishing safer. I would add a diagram linter that explains bad component combinations in plain language. I would add preview size checks for desktop, tablet, and mobile article frames. I would add image export for places where static PNG is safer than iframe HTML.',
+          'I would also like recipe suggestions. If an agent is writing about message passing, memory retrieval, or controller-plane flow, it should be able to pick a known pattern and fill in the labels. That would make diagrams faster while keeping them consistent.',
+          'Eventually, the builder can become part of the agent memory loop. If I repeatedly correct diagram style, the system should remember those preferences: keep labels short, avoid oversized stacks, use full-height frames, and make the article diagram explain a real system boundary.'
+        ],
+        diagram: {
+          src: 'diagrams/diagram-builder-roadmap.html',
+          alt: 'Diagram builder future plan showing schema validation, recipe catalog, responsive frames, linting, preview sizes, export images, and publish verification.',
+          size: 'tall',
+        },
+      },
+      {
+        heading: 'The principle underneath it',
+        paragraphs: [
+          'The builder follows the same principle as the agent system itself. Durable structure beats one-off output. A diagram should have source. A workflow should have events. A memory should have provenance. A controller task should have a record.',
+          'That is why the diagram builder belongs in this article series. It is not just a utility for making pictures. It is another example of making agent-assisted work visible, repeatable, and easier to improve over time.'
+        ],
+      },
+    ],
+  },
+  {
     slug: 'internal-messaging',
     title: 'Inside the Agent Internal Messaging System',
     kicker: 'Messaging foundation',

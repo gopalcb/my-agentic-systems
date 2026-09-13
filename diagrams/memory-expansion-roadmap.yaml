@@ -1,0 +1,36 @@
+title: Memory Expansion Roadmap
+subtitle: The plan grows from hardened local facts into project-aware, hybrid, measured recall.
+diagrams:
+  - type: component_stack
+    title: Roadmap
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Phase 1 Harden local memory
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - schema and kinds
+          - candidate promotion
+          - redaction checks
+      - component: node-only
+        compact: true
+        nodes:
+          - Phase 2 Project-aware memory
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - project.yaml
+          - ARCHITECTURE.md
+          - code-map.yaml
+      - component: node-only
+        compact: true
+        nodes:
+          - Phase 3 Consolidation
+      - component: double-node-without-bottom-line
+        nodes:
+          - merge repeated facts
+          - text: supersede stale memory
+            down_arrow: true
+            down_label: smaller future context

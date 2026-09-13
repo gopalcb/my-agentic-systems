@@ -1,0 +1,36 @@
+title: Memory Get Flow
+subtitle: Retrieval starts with scope, merges exact and semantic matches, then returns a small context block.
+diagrams:
+  - type: component_stack
+    title: Get path
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - New agent request
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - repo path
+          - task intent
+          - selected agent
+      - component: node-only
+        compact: true
+        nodes:
+          - GET /agent/memory/get
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - DynamoDB filters
+          - OpenSearch vector search
+          - S3 evidence lookup
+      - component: node-only
+        compact: true
+        nodes:
+          - Merge, rerank, and trim
+      - component: double-node-without-bottom-line
+        nodes:
+          - exact facts
+          - text: prompt memory block
+            down_arrow: true
+            down_label: current source still wins

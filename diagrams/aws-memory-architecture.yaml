@@ -1,0 +1,38 @@
+title: AWS Memory Architecture
+subtitle: API Gateway protects focused memory endpoints while Lambda, S3, DynamoDB, Bedrock, and a vector index share the work.
+diagrams:
+  - type: component_stack
+    title: Publishable AWS plan
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Codex Agent Runtime
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - /agent/auth
+          - /agent/memory/save
+          - /agent/memory/get
+      - component: node-only
+        compact: true
+        nodes:
+          - API Gateway with Lambda authorizer
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - Auth Lambda
+          - Save Memory Lambda
+          - Get Context Lambda
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - S3 evidence store
+          - DynamoDB memory table
+          - OpenSearch vector index
+      - component: double-node-without-bottom-line
+        nodes:
+          - Bedrock lightweight models
+          - text: Agent prompt context
+            down_arrow: true
+            down_label: bounded memory block

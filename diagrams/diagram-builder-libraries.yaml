@@ -1,0 +1,36 @@
+title: Diagram Builder Libraries
+subtitle: Small primitives and composite patterns keep diagrams consistent without hand-building every connector.
+diagrams:
+  - type: component_stack
+    title: Library layers
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Builder libs
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - core-components
+          - composite-components
+          - text-composite-components
+      - component: node-only
+        compact: true
+        nodes:
+          - pattern-recipes
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - event bus
+          - architecture stack
+          - repository tree
+      - component: node-only
+        compact: true
+        nodes:
+          - Article diagram YAML
+      - component: double-node-without-bottom-line
+        nodes:
+          - repeatable style
+          - text: faster publishing
+            down_arrow: true
+            down_label: less visual drift

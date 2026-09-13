@@ -1,0 +1,36 @@
+title: Diagram Builder Roadmap
+subtitle: The next improvements should make diagrams easier to author, test, and publish.
+diagrams:
+  - type: component_stack
+    title: Improvement plan
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Current static builder
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - schema validation
+          - recipe catalog
+          - responsive frames
+      - component: node-only
+        compact: true
+        nodes:
+          - Better authoring loop
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - lint diagrams
+          - preview sizes
+          - export images
+      - component: node-only
+        compact: true
+        nodes:
+          - Future agent support
+      - component: double-node-without-bottom-line
+        nodes:
+          - suggest patterns
+          - text: verify publish output
+            down_arrow: true
+            down_label: ready article asset

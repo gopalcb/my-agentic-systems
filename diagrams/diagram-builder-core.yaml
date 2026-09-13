@@ -1,0 +1,36 @@
+title: Core Diagram Builder
+subtitle: Declarative YAML, reusable libraries, validation, and static HTML output.
+diagrams:
+  - type: component_stack
+    title: Builder flow
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Article architecture idea
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - flow YAML
+          - tree YAML
+          - component stack YAML
+      - component: node-only
+        compact: true
+        nodes:
+          - diagram_builder.py
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - load catalog
+          - validate shape
+          - render HTML
+      - component: node-only
+        compact: true
+        nodes:
+          - Static diagram page
+      - component: double-node-without-bottom-line
+        nodes:
+          - reusable CSS
+          - text: article iframe
+            down_arrow: true
+            down_label: transparent background

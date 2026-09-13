@@ -1,0 +1,41 @@
+title: Memory Save Flow
+subtitle: A completed agent run becomes a reviewed memory record before it reaches durable AWS storage.
+diagrams:
+  - type: component_stack
+    title: Save path
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Completed Codex agent run
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - Runtime events
+          - Final artifacts
+          - Human feedback
+      - component: node-only
+        compact: true
+        nodes:
+          - Local memory candidate builder
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - redact secrets
+          - classify kind
+          - assign scope
+      - component: node-only
+        compact: true
+        nodes:
+          - POST /agent/memory/save
+      - component: tri-node-without-bottom-line
+        nodes:
+          - text: S3 raw evidence
+            down_arrow: true
+            down_label: logs and artifacts
+          - text: DynamoDB record
+            down_arrow: true
+            down_label: metadata and status
+          - text: Vector index
+            down_arrow: true
+            down_label: semantic lookup

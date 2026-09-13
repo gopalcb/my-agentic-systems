@@ -8,6 +8,9 @@ const indexFile = join(docs, 'index.html');
 
 const routes = [
   'articles/why-i-built-my-agent-systems',
+  'articles/aws-memory-architecture-plan',
+  'articles/memory-expansion-roadmap',
+  'articles/core-diagram-builder-approach',
   'articles/internal-messaging',
   'articles/ui-debugger-message-passing',
   'articles/agentic-collaboration-patterns',

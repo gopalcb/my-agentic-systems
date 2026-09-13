@@ -12,6 +12,11 @@ import { filter } from 'rxjs';
       <header class="topbar">
         <div class="topbar-inner">
           <a class="brand-title" href="./">my agent systems</a>
+          <nav class="topnav" aria-label="Primary article menus">
+            <a href="./articles/why-i-built-my-agent-systems">Codex agent system</a>
+            <a href="./articles/aws-memory-architecture-plan">Memory expansion plan</a>
+            <a href="./articles/core-diagram-builder-approach">Diagram builder</a>
+          </nav>
           <a
             class="github-link"
             href="https://github.com/gopalcb/my-agentic-systems"
