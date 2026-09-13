@@ -9,9 +9,19 @@
   --text-faint: #89919b;
   --border: #d8dee6;
   --border-strong: #b8c2ce;
+  --border-complete: #8ac49f;
   --accent: #247b5f;
   --accent-hover: #1b614b;
   --accent-soft: #e1f3eb;
+  --accent-blue: #2c6fb7;
+  --blue-soft: #e6f0fb;
+  --success-soft: #e1f3e8;
+  --success-text: #276746;
+  --warning-soft: #fff4d8;
+  --warning-text: #805d10;
+  --danger-soft: #fbe8e7;
+  --danger-border: #efb9b5;
+  --danger-text: #9a3932;
   --robot-glow: #38a58f;
   --shadow: 0 8px 20px rgba(26, 35, 45, 0.055);
   --font: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -49,6 +59,30 @@ select {
 
 :where(.article-nav, .article-panel, .diagram-frame, .example-block, a, iframe) {
   border-radius: 3px;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.section-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.muted {
+  color: var(--text-faint);
+}
+
+.empty-state {
+  padding: 40px 20px;
+  color: var(--text-soft);
+  text-align: center;
 }
 
 .app-page {
@@ -153,6 +187,36 @@ select {
   color: var(--text);
   font-size: 21px;
   line-height: 1.12;
+}
+
+.controller-demo-link {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 12px;
+  border: 1px solid rgba(36, 123, 95, 0.45);
+  background: linear-gradient(180deg, #f4fbf8 0%, var(--accent-soft) 100%);
+  color: var(--accent-hover);
+}
+
+.controller-demo-link:hover,
+.controller-demo-link.active {
+  border-color: rgba(36, 123, 95, 0.68);
+  background: #d9efe6;
+}
+
+.demo-link-title {
+  font-size: 12px;
+  font-weight: 820;
+  line-height: 1.2;
+}
+
+.demo-link-subtitle {
+  color: #4d665c;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 .article-nav nav {

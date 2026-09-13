@@ -29,6 +29,17 @@ type ViewArticle = Article & {
   template: `
     <section class="article-shell">
       <aside class="article-nav" aria-label="Articles">
+        <a
+          class="controller-demo-link"
+          routerLink="/controller-plane-ui-demo"
+          routerLinkActive="active"
+          aria-label="Open controller plane UI demo"
+        >
+          <span class="demo-link-title">Controller plane UI demo</span>
+          <span class="demo-link-subtitle">
+            View the agent systems controller plane UI with mock data for a high level functional overview.
+          </span>
+        </a>
         <p class="section-kicker">Articles</p>
         <h1>Agentic system development</h1>
         <nav>
