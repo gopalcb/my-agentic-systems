@@ -57,6 +57,16 @@ select {
   font: inherit;
 }
 
+button,
+a,
+[role="button"] {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 :where(.article-nav, .article-panel, .diagram-frame, .example-block, a, iframe) {
   border-radius: 3px;
 }
@@ -89,6 +99,10 @@ select {
   min-height: 100vh;
   display: grid;
   grid-template-rows: 54px 1fr;
+}
+
+.app-page.controller-demo-mode {
+  display: block;
 }
 
 .topbar {
@@ -147,6 +161,11 @@ select {
   padding: 10px 18px 18px;
 }
 
+.controller-demo-host {
+  min-width: 0;
+  min-height: 100vh;
+}
+
 .article-shell {
   width: min(1260px, 100%);
   min-height: calc(100vh - 82px);
@@ -189,36 +208,6 @@ select {
   line-height: 1.12;
 }
 
-.controller-demo-link {
-  display: grid;
-  gap: 5px;
-  width: 100%;
-  margin-bottom: 18px;
-  padding: 12px;
-  border: 1px solid rgba(36, 123, 95, 0.45);
-  background: linear-gradient(180deg, #f4fbf8 0%, var(--accent-soft) 100%);
-  color: var(--accent-hover);
-}
-
-.controller-demo-link:hover,
-.controller-demo-link.active {
-  border-color: rgba(36, 123, 95, 0.68);
-  background: #d9efe6;
-}
-
-.demo-link-title {
-  font-size: 12px;
-  font-weight: 820;
-  line-height: 1.2;
-}
-
-.demo-link-subtitle {
-  color: #4d665c;
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1.45;
-}
-
 .article-nav nav {
   display: grid;
   gap: 7px;
@@ -240,6 +229,43 @@ select {
   border-color: rgba(36, 123, 95, 0.45);
   background: var(--accent-soft);
   color: var(--accent-hover);
+}
+
+.article-nav a.controller-demo-link {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 13px 14px;
+  border: 1px solid rgba(36, 123, 95, 0.58);
+  background: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 8px 16px rgba(24, 92, 70, 0.16);
+}
+
+.article-nav a.controller-demo-link:hover,
+.article-nav a.controller-demo-link.active {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+  color: #ffffff;
+}
+
+.demo-link-title,
+.demo-link-subtitle {
+  display: block;
+}
+
+.demo-link-title {
+  font-size: 12px;
+  font-weight: 820;
+  line-height: 1.2;
+}
+
+.demo-link-subtitle {
+  color: #d8efe7;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 .article-panel {

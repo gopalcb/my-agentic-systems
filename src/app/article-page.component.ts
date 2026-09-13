@@ -33,7 +33,6 @@ type ViewArticle = Article & {
           class="controller-demo-link"
           routerLink="/controller-plane-ui-demo"
           routerLinkActive="active"
-          aria-label="Open controller plane UI demo"
         >
           <span class="demo-link-title">Controller plane UI demo</span>
           <span class="demo-link-subtitle">

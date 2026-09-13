@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],
   template: `
-    <div class="app-page">
+    <div class="app-page" [class.controller-demo-mode]="controllerDemoMode()">
+      @if (!controllerDemoMode()) {
       <header class="topbar">
         <div class="topbar-inner">
           <a class="brand-title" href="./">my agent systems</a>
@@ -27,10 +29,24 @@ import { RouterOutlet } from '@angular/router';
           </a>
         </div>
       </header>
-      <main class="workspace">
+      }
+      <main [class.workspace]="!controllerDemoMode()" [class.controller-demo-host]="controllerDemoMode()">
         <router-outlet />
       </main>
     </div>
   `,
 })
-export class AppComponent {}
+export class AppComponent {
+  private readonly router = inject(Router);
+  readonly controllerDemoMode = signal(this.isControllerDemoRoute(this.router.url));
+
+  constructor() {
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => this.controllerDemoMode.set(this.isControllerDemoRoute(event.urlAfterRedirects)));
+  }
+
+  private isControllerDemoRoute(url: string): boolean {
+    return url.startsWith('/controller-plane-ui-demo');
+  }
+}

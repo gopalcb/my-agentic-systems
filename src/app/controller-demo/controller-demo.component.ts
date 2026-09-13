@@ -19,29 +19,21 @@ import { HeaderComponent } from './components/header/header.component';
     `
       :host {
         display: block;
-        width: min(1260px, 100%);
-        margin: 0 auto;
+        width: 100%;
+        min-height: 100vh;
       }
 
       .controller-demo-shell {
-        min-height: calc(100vh - 82px);
+        min-height: 100vh;
         overflow: hidden;
-        border: 1px solid var(--border);
-        border-radius: 3px;
         background: var(--surface);
-        box-shadow: var(--shadow);
       }
 
       .controller-demo-workspace {
         min-width: 0;
         padding: 14px;
       }
-
       @media (max-width: 700px) {
-        :host {
-          width: 100%;
-        }
-
         .controller-demo-workspace {
           padding: 10px;
         }
