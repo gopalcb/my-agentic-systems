@@ -1,0 +1,38 @@
+title: Why I Built My Agent Systems
+subtitle: A personal Codex environment shaped around repeatable engineering judgment, memory, feedback, and visible work.
+diagrams:
+  - type: component_stack
+    title: Personal agent system loop
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - My Engineering Intent
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - problem solving style
+          - design judgment
+          - validation habits
+      - component: node-only
+        compact: true
+        nodes:
+          - Custom Codex Agents
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - structured workflows
+          - durable messages
+          - controller visibility
+      - component: node-only
+        compact: true
+        nodes:
+          - Cross-Session Memory
+      - component: double-node-without-bottom-line
+        nodes:
+          - text: Better Next Session
+            down_arrow: true
+            down_label: less rediscovery
+          - text: Human Feedback
+            down_arrow: true
+            down_label: better strategy

@@ -1,0 +1,25 @@
+title: Message Lifecycle Detail
+subtitle: One durable message can be queued, processed, failed, replied to, and inspected later.
+diagrams:
+  - type: flow
+    title: Inbox to reply
+    steps:
+      - component: label-upper
+        text: AGENT MESSAGE
+      - component: down-arrow
+      - component: label-normal
+        text: inbox / recipient
+      - component: down-arrow-with-right-branches
+        branches:
+          - index record under records/messages
+          - append sent event to records/events.jsonl
+          - link task or error state when present
+      - component: label-normal
+        text: handler or agent accepts work
+      - component: down-arrow-with-right-branches
+        branches:
+          - move to processed on success
+          - move to failed with error note on failure
+          - keep compact artifact paths in reply
+      - component: label-lower
+        text: reply_to thread keeps the story together

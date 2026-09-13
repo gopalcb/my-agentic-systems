@@ -1,0 +1,36 @@
+title: Custom Agent Roles
+subtitle: The system keeps roles small enough to understand and strong enough to coordinate through shared state.
+diagrams:
+  - type: component_stack
+    title: Role map
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Codex Collaboration
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - system engineer
+          - planner
+          - validator
+      - component: node-only
+        compact: true
+        nodes:
+          - Shared Runtime
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - UI debugger
+          - log analyzer
+          - memory analyzer
+      - component: node-only
+        compact: true
+        nodes:
+          - Controller and Messages
+      - component: double-node-without-bottom-line
+        nodes:
+          - operator review
+          - text: durable artifacts
+            down_arrow: true
+            down_label: visible evidence

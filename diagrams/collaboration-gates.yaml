@@ -1,0 +1,28 @@
+title: Collaboration Gates
+subtitle: The system separates planning, approval, implementation, validation, feedback, and finalization.
+diagrams:
+  - type: flow
+    title: Work gates
+    steps:
+      - component: label-upper
+        text: USER REQUEST
+      - component: down-arrow
+      - component: label-normal
+        text: analyze and resolve context
+      - component: down-arrow-with-right-branches
+        branches:
+          - choose owner agent
+          - plan tasks when needed
+          - use web research only for current external facts
+      - component: label-normal
+        text: explicit task approval
+      - component: down-arrow
+      - component: label-normal
+        text: implement and validate
+      - component: down-arrow-with-right-branches
+        branches:
+          - compile and tests
+          - browser evidence for UI
+          - strategy feedback for improvements
+      - component: label-lower
+        text: finalize artifacts and memory candidates

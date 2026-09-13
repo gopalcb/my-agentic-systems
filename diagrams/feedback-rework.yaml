@@ -1,0 +1,25 @@
+title: Feedback to Rework
+subtitle: Feedback can improve the current result and update future strategy at the same time.
+diagrams:
+  - type: flow
+    title: Feedback detail
+    steps:
+      - component: label-upper
+        text: WORK RESULT
+      - component: down-arrow
+      - component: label-normal
+        text: operator feedback submitted
+      - component: down-arrow-with-right-branches
+        branches:
+          - requested change
+          - store durable strategy
+          - no action when feedback is not reusable
+      - component: label-normal
+        text: strategy-memory analyzer
+      - component: down-arrow-with-right-branches
+        branches:
+          - add or update active record
+          - supersede stale record
+          - create bounded rework prompt
+      - component: label-lower
+        text: current work improves and future context improves

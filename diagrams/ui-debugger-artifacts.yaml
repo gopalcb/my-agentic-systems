@@ -1,0 +1,38 @@
+title: UI Debugger Artifact Set
+subtitle: The browser run writes evidence to files and replies with only the compact summary.
+diagrams:
+  - type: component_stack
+    title: Artifact contract
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - ui_debug_request
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - URL and viewport
+          - wait settings
+          - notes
+      - component: node-only
+        compact: true
+        nodes:
+          - Selenium Runner
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - screenshot
+          - console.json
+          - network-errors.json
+      - component: node-only
+        compact: true
+        nodes:
+          - manifest.json
+      - component: double-node-without-bottom-line
+        nodes:
+          - text: compact result
+            down_arrow: true
+            down_label: counts and first errors
+          - text: artifact paths
+            down_arrow: true
+            down_label: inspectable later

@@ -1,0 +1,38 @@
+title: Memory Growth Over Time
+subtitle: Memory is useful when it carries verified practice forward without replacing current source or current instructions.
+diagrams:
+  - type: component_stack
+    title: Learning path
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Completed Work
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - run evidence
+          - validation results
+          - operator feedback
+      - component: node-only
+        compact: true
+        nodes:
+          - Memory Candidate
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - project fact
+          - strategy preference
+          - recurring failure
+      - component: node-only
+        compact: true
+        nodes:
+          - Future Context
+      - component: double-node-without-bottom-line
+        nodes:
+          - text: retrieved guidance
+            down_arrow: true
+            down_label: compact and relevant
+          - text: current source
+            down_arrow: true
+            down_label: final authority

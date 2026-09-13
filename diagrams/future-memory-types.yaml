@@ -1,0 +1,38 @@
+title: Future Memory Types
+subtitle: Different memories should have different authority, freshness, and review policies.
+diagrams:
+  - type: component_stack
+    title: Memory type map
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Agent Memory Layer
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - run memory
+          - failure memory
+          - strategy memory
+      - component: node-only
+        compact: true
+        nodes:
+          - Policy and Provenance
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - architecture memory
+          - vector memory
+          - external memory
+      - component: node-only
+        compact: true
+        nodes:
+          - Bounded Retrieval
+      - component: double-node-without-bottom-line
+        nodes:
+          - text: reviewed source
+            down_arrow: true
+            down_label: trusted enough to show
+          - text: current task
+            down_arrow: true
+            down_label: still in control

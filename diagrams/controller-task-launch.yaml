@@ -1,0 +1,28 @@
+title: Controller Task Launch
+subtitle: Creating a task and starting a task are separate operator actions.
+diagrams:
+  - type: flow
+    title: Task lifecycle
+    steps:
+      - component: label-upper
+        text: CREATE TASK
+      - component: down-arrow
+      - component: label-normal
+        text: write task_request message
+      - component: down-arrow-with-right-branches
+        branches:
+          - records/tasks stores status
+          - inbox stores pending work
+          - task thread can show details
+      - component: label-normal
+        text: wait for user approval
+      - component: down-arrow
+      - component: label-normal
+        text: start task runner
+      - component: down-arrow-with-right-branches
+        branches:
+          - delegate to runtime gateway
+          - update task status
+          - send task_request.result reply
+      - component: label-lower
+        text: controller shows the real lifecycle

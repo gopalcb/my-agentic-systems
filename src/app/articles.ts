@@ -2,6 +2,13 @@ export type ArticleSection = {
   heading: string;
   paragraphs: string[];
   bullets?: string[];
+  diagram?: ArticleDiagram;
+};
+
+export type ArticleDiagram = {
+  src: string;
+  alt: string;
+  size?: 'short' | 'medium' | 'tall';
 };
 
 export type Article = {
@@ -11,6 +18,7 @@ export type Article = {
   summary: string;
   diagram: string;
   diagramAlt: string;
+  diagramSize?: 'short' | 'medium' | 'tall';
   readingTime: string;
   sections: ArticleSection[];
   example?: {
@@ -21,12 +29,75 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: 'why-i-built-my-agent-systems',
+    title: 'Why I Built My Agent Systems',
+    kicker: 'Series opening',
+    readingTime: '12 min read',
+    diagram: 'diagrams/personal-agent-system.html',
+    diagramAlt: 'High-level view of personal engineering intent flowing into custom agents, structured workflows, memory, feedback, and better future Codex collaboration.',
+    diagramSize: 'tall',
+    summary:
+      'A high-level, intuitive introduction to the personal reason behind this system: making Codex collaboration more consistent, more structured, and more aware of how I think through engineering work over time.',
+    sections: [
+      {
+        heading: 'The personal reason behind the system',
+        paragraphs: [
+          'I have spent my spare time building this agent system because I wanted a better way to work with Codex agents. Not just a place to send prompts, and not just a collection of scripts around a terminal. I wanted a working environment where my agents could slowly understand the way I approach engineering: how I break down problems, how I design systems, how I validate changes, how I recover from mistakes, and how I prefer work to be explained back to me.',
+          'When I use an AI coding agent, I do not want every session to feel like starting from zero. I want the agent to know that I care about architecture boundaries, real validation, clear task state, readable UI evidence, and practical memory. I want it to remember the shape of previous work without pretending old memory is more important than the current repository. I want consistent, structured output that helps me keep moving instead of forcing me to reconstruct what happened after every run.',
+          'That is the real motivation for this system. It is a personal agent control plane built around my interaction style with Codex: direct enough to be useful, structured enough to be trusted, and durable enough to improve across sessions.'
+        ],
+      },
+      {
+        heading: 'Why customization matters',
+        paragraphs: [
+          'A generic agent can be helpful, but serious engineering work has a style. Some people want quick patches. Some want long analysis. Some want every decision turned into a ticket. My style is somewhere more operational: understand the system, plan before touching broad surfaces, make focused changes, validate with the right evidence, and leave enough state behind that the next session can continue intelligently.',
+          'That required a set of custom agents instead of one large assistant personality. The system engineer agent handles normal repository work. Planning and validation can be split when the work needs it. A UI debugger agent captures browser evidence. A strategy-memory analyzer turns useful feedback into durable guidance. The controller shows the state instead of hiding it inside chat history.',
+          'The point is not to make the system feel complicated. The point is to let each part do one job well, then connect those parts through messages, events, artifacts, and memory.'
+        ],
+        diagram: {
+          src: 'diagrams/personal-agent-roles.html',
+          alt: 'Custom agent roles arranged around one Codex collaboration loop: system engineer, planner, debugger, validator, feedback analyzer, and controller.',
+          size: 'tall',
+        },
+      },
+      {
+        heading: 'The system I needed',
+        paragraphs: [
+          'The system needed four things. First, it needed structured workflows so that a request could move through analysis, context, planning, execution, validation, feedback, and finalization without becoming a messy transcript. Second, it needed durable messages so agents could ask each other for help and leave a visible trail. Third, it needed memory that improves future sessions without flooding them. Fourth, it needed a controller plane so I could see tasks, messages, logs, workflow state, and memory from one place.',
+          'Those needs are connected. A workflow without messages is hard to coordinate. Messages without logs and artifacts are hard to trust. Memory without feedback becomes generic. A controller without a runtime boundary becomes another execution engine. The system becomes useful only when those parts are designed together.',
+          'This is why the project is not only an agent list. It is a runtime, a message bus, a controller, a memory layer, a feedback loop, a logging strategy, and a publishing habit for the knowledge that comes out of the work.'
+        ],
+      },
+      {
+        heading: 'How memory should improve the agents',
+        paragraphs: [
+          'The memory goal is not to make the agent sound familiar. The goal is to make it work with better judgment. If a previous session proved that a certain build failure is environment-level, future agents should start with that clue. If I repeatedly ask for browser validation before UI claims, that should become durable strategy. If a controller path moved during a migration, the next agent should not waste time reading stale locations first.',
+          'Good memory also needs limits. The agent should retrieve a small amount of relevant project memory, treat it as guidance, and still verify the current files. That balance matters because software changes. Memory should help the agent ask better first questions, not give it permission to stop checking.',
+          'Over time, this creates a more personal engineering assistant. It remembers my long-term practices, my validation expectations, my architecture preferences, and the lessons that were expensive to learn once.'
+        ],
+        diagram: {
+          src: 'diagrams/personal-memory-growth.html',
+          alt: 'Memory growth path from completed work and feedback into future Codex context, with current source remaining the authority.',
+          size: 'tall',
+        },
+      },
+      {
+        heading: 'What this article series explains',
+        paragraphs: [
+          'The rest of this series explains the system from the inside out. It starts with messaging because messages are the coordination layer. It moves into UI debugging because browser evidence is a good example of tool use through messages. Then it covers collaboration patterns, memory, feedback, logging, controller-plane design, and future memory integrations.',
+          'My goal is to make the system easy to understand even if the implementation has many parts. Each article tries to answer the same practical question: what problem does this layer solve, and why does it make Codex collaboration better?'
+        ],
+      },
+    ],
+  },
+  {
     slug: 'internal-messaging',
     title: 'Inside the Agent Internal Messaging System',
     kicker: 'Messaging foundation',
     readingTime: '14 min read',
     diagram: 'diagrams/internal-messaging.html',
     diagramAlt: 'Data flow from user request to controller, message records, runtime, replies, task records, and operational errors.',
+    diagramSize: 'tall',
     summary:
       'A practical tour of how agents coordinate through durable messages, why compact replies matter, and how the same message shape supports tool calls, task creation, UI debugging, error handling, and recovery.',
     sections: [
@@ -45,6 +116,11 @@ export const ARTICLES: Article[] = [
           'The bus writes the pending file into the recipient inbox and also creates an indexed record under `records/messages/`. That second copy is important for dashboards. The controller UI should not scrape inbox folders and infer meaning from filenames. It asks the backend for a structured messaging snapshot, and the backend reads the durable records, events, tasks, and errors into one view.',
           'When a handler accepts the message, the file moves from `inbox/<agent-id>/` to `processed/<agent-id>/`. If the handler cannot run it, the file moves to `failed/<agent-id>/` and receives a sibling error note. Either way, the message record changes status and a lifecycle event is appended to `records/events.jsonl`. The visible audit trail is not an afterthought; it is part of the message write.'
         ],
+        diagram: {
+          src: 'diagrams/internal-message-lifecycle.html',
+          alt: 'Lifecycle detail showing a message moving from inbox to processed or failed records, with reply threading and event logging.',
+          size: 'tall',
+        },
       },
       {
         heading: 'Task creation as a message flow',
@@ -113,6 +189,7 @@ export const ARTICLES: Article[] = [
     readingTime: '10 min read',
     diagram: 'diagrams/ui-debugger.html',
     diagramAlt: 'Message path from an agent or controller to the UI debugger, Selenium capture, artifacts, and compact reply.',
+    diagramSize: 'tall',
     summary:
       'The UI debugger works best when it behaves like an agent-facing service: request by message, inspect through Selenium, store artifacts, and reply with only the useful evidence.',
     sections: [
@@ -131,6 +208,11 @@ export const ARTICLES: Article[] = [
           'The artifacts are stored under `.agent-state/agents-messaging/debug-sessions/<request-id>/`. The reply includes paths to `manifest.json`, screenshot output, console logs, and network error records. It also includes counts and first errors so the receiving agent can understand the situation without reading several large files every time.',
           'This gives the operator and the agent the same evidence. A human can open the screenshot. An agent can parse the compact reply. The controller can show the message thread and artifact paths. The browser session becomes part of the durable task story.'
         ],
+        diagram: {
+          src: 'diagrams/ui-debugger-artifacts.html',
+          alt: 'UI debugger artifact set showing screenshot, console records, network failures, manifest, and compact reply.',
+          size: 'tall',
+        },
       },
       {
         heading: 'Why message passing is the right call surface',
@@ -157,6 +239,7 @@ export const ARTICLES: Article[] = [
     readingTime: '11 min read',
     diagram: 'diagrams/collaboration.html',
     diagramAlt: 'Planner, system engineer, debugger, validator, memory, and operator feedback connected through shared runtime events.',
+    diagramSize: 'tall',
     summary:
       'Good agent collaboration is not about having more agents. It is about giving each participant a clean boundary, a useful handoff, and a durable record of what happened.',
     sections: [
@@ -183,6 +266,11 @@ export const ARTICLES: Article[] = [
           'Validation is another gate. A compile check proves syntax. Unit tests prove known behavior. Browser evidence proves the UI actually rendered and loaded what it needed. A good collaboration pattern does not collapse these into one vague “done.” It records which claims were verified and which were not.',
           'Feedback closes the loop. After work, strategy feedback can ask whether the result needs rework and whether the lesson should become durable memory. That makes collaboration adaptive without letting every passing opinion become permanent instruction.'
         ],
+        diagram: {
+          src: 'diagrams/collaboration-gates.html',
+          alt: 'Collaboration gates showing planning, approval, implementation, validation evidence, feedback, and finalization.',
+          size: 'tall',
+        },
       },
       {
         heading: 'Why this is efficient',
@@ -201,6 +289,7 @@ export const ARTICLES: Article[] = [
     readingTime: '11 min read',
     diagram: 'diagrams/memory.html',
     diagramAlt: 'Runtime events becoming final artifacts, memory candidates, durable records, and retrieved context in future runs.',
+    diagramSize: 'tall',
     summary:
       'Memory improves agents when it is derived from real work, bounded during retrieval, and treated as guidance rather than a replacement for current source and user instructions.',
     sections: [
@@ -219,6 +308,11 @@ export const ARTICLES: Article[] = [
           'The current implementation uses local lexical scoring with metadata and recency weights. There is no vector store in the runtime today, and that is a reasonable first stage. Lexical retrieval is simple, inspectable, cheap, and good enough for many project-memory cases, especially when records include filenames, agent ids, workflow ids, tags, and concrete failure text.',
           'The system also keeps authority clear. Retrieved memory can help, but current user instructions, current source, and current repository state remain more authoritative. That prevents memory from becoming a ghost architecture.'
         ],
+        diagram: {
+          src: 'diagrams/memory-retrieval.html',
+          alt: 'Retrieval policy showing active records, lexical ranking, filters for stale records, and bounded context injection.',
+          size: 'tall',
+        },
       },
       {
         heading: 'What belongs in memory',
@@ -244,6 +338,7 @@ export const ARTICLES: Article[] = [
     readingTime: '10 min read',
     diagram: 'diagrams/feedback.html',
     diagramAlt: 'Work result, human feedback, analyzer, strategy memory, rework, and future agent planning loop.',
+    diagramSize: 'tall',
     summary:
       'Feedback turns memory from passive recall into a living strategy layer, especially when rework, analyzer decisions, and superseded guidance are handled explicitly.',
     sections: [
@@ -262,6 +357,11 @@ export const ARTICLES: Article[] = [
           'There is also a practical fallback. If the user requested storage but the analyzer produces no memory action, the runtime can create a local feedback-derived memory action. That protects the operator from losing useful guidance because an analyzer was too conservative.',
           'Older strategy records are not simply deleted. They can be marked superseded. That keeps history while preventing stale guidance from being injected into future prompts.'
         ],
+        diagram: {
+          src: 'diagrams/feedback-rework.html',
+          alt: 'Feedback detail showing submitted feedback becoming analyzer actions, strategy memory, optional rework, and superseded history.',
+          size: 'tall',
+        },
       },
       {
         heading: 'Why feedback improves the memory system',
@@ -287,6 +387,7 @@ export const ARTICLES: Article[] = [
     readingTime: '10 min read',
     diagram: 'diagrams/logging.html',
     diagramAlt: 'Browser logs, backend logs, Python runtime logs, runtime events, log analyzer, and operational error message flow.',
+    diagramSize: 'tall',
     summary:
       'Useful logging separates diagnostics, runtime events, browser evidence, and operational errors so each one answers a different question.',
     sections: [
@@ -313,6 +414,11 @@ export const ARTICLES: Article[] = [
           'This is a strong pattern because logs become actionable without becoming memory by default. The controller can show the current active error. Agents can see an `error.detected` message. Once the fix is verified, the error can be resolved and archived.',
           'The system therefore does not depend on someone remembering that a scary line appeared in a terminal. If it matters, it becomes visible state.'
         ],
+        diagram: {
+          src: 'diagrams/logging-error-routing.html',
+          alt: 'Error routing detail showing system logs, analyzer context, current-error state, error.detected message, and fixed archive.',
+          size: 'tall',
+        },
       },
       {
         heading: 'Evidence belongs in layers',
@@ -331,6 +437,7 @@ export const ARTICLES: Article[] = [
     readingTime: '11 min read',
     diagram: 'diagrams/controller-plane.html',
     diagramAlt: 'Angular controller UI, Nest controller API, MQ server, runtime, workflows, memory, messages, logs, and artifacts.',
+    diagramSize: 'tall',
     summary:
       'The controller plane is most useful when it stays a control and visibility layer, while the runtime remains the owner of workflow execution.',
     sections: [
@@ -357,6 +464,11 @@ export const ARTICLES: Article[] = [
           'This is practical operator design. Users can queue work, review it, and start it when they are ready. Agents do not begin expensive or risky work just because a card was created. The task thread reflects the real lifecycle.',
           'When the task runner replies, the controller can show the result as part of the same message thread. The UI stays close to the facts.'
         ],
+        diagram: {
+          src: 'diagrams/controller-task-launch.html',
+          alt: 'Controller task lifecycle showing create task, await approval, start task, task runner, runtime gateway, and result reply.',
+          size: 'tall',
+        },
       },
       {
         heading: 'Why the controller plane makes the system calmer',
@@ -375,6 +487,7 @@ export const ARTICLES: Article[] = [
     readingTime: '10 min read',
     diagram: 'diagrams/future-memory.html',
     diagramAlt: 'Current event-derived memory expanding into lexical recall, vector memory, external integrations, provenance checks, and bounded prompt injection.',
+    diagramSize: 'tall',
     summary:
       'Vector memory and external integrations can make agents smarter, but only if provenance, authority, and bounded retrieval remain first-class design rules.',
     sections: [
@@ -401,6 +514,11 @@ export const ARTICLES: Article[] = [
           'Those should not all be thrown into one ranking bucket. A future system can improve by giving each type a policy: how it is created, how it expires, how it is superseded, who can approve it, and how much of it can enter a prompt.',
           'This is especially important for public or team-facing integrations. A GitHub issue may contain speculation. A design doc may be authoritative. A Slack message may be useful but informal. The retrieval layer has to preserve those differences.'
         ],
+        diagram: {
+          src: 'diagrams/future-memory-types.html',
+          alt: 'Future memory type map showing run, failure, strategy, architecture, vector, and external memory with separate policies.',
+          size: 'tall',
+        },
       },
       {
         heading: 'Integration without losing control',

@@ -16,11 +16,12 @@
 }
 
 .diagram-page {
-  min-height: 100vh;
-  padding: 40px 18px;
+  min-height: 0;
+  padding: 24px 14px;
   color: var(--db-text);
   font-family: var(--db-font);
   background: transparent;
+  overflow: hidden;
 }
 
 .diagram-page,
@@ -32,7 +33,7 @@
   width: min(1080px, 100%);
   margin: 0 auto;
   display: grid;
-  gap: 28px;
+  gap: 18px;
   justify-items: center;
   background: transparent;
 }
@@ -47,7 +48,7 @@
 
 .diagram-subtitle {
   max-width: 68ch;
-  margin: -18px 0 4px;
+  margin: -10px 0 2px;
   color: var(--db-text-soft);
   font-size: 12px;
   line-height: 1.5;
@@ -59,7 +60,7 @@
   display: grid;
   justify-items: center;
   gap: 12px;
-  padding: 18px;
+  padding: 10px;
   background: transparent;
 }
 

@@ -150,27 +150,27 @@ select {
 
 .article-panel {
   min-width: 0;
-  padding: clamp(20px, 3vw, 38px);
+  padding: clamp(18px, 2.4vw, 30px);
 }
 
 .article-header {
   max-width: 76ch;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
 
 .article-header h2 {
   margin: 0;
   color: var(--text);
-  font-size: clamp(30px, 4vw, 48px);
-  line-height: 1.02;
+  font-size: clamp(21px, 2vw, 28px);
+  line-height: 1.18;
   letter-spacing: 0;
 }
 
 .lede {
-  margin: 14px 0 0;
+  margin: 10px 0 0;
   color: var(--text-soft);
-  font-size: 16px;
-  line-height: 1.65;
+  font-size: 14px;
+  line-height: 1.62;
 }
 
 .diagram-frame {
@@ -184,9 +184,18 @@ select {
 .diagram-frame iframe {
   display: block;
   width: 100%;
-  height: 560px;
+  height: 650px;
   border: 0;
   background: transparent;
+  overflow: hidden;
+}
+
+.diagram-frame-short iframe {
+  height: 520px;
+}
+
+.diagram-frame-tall iframe {
+  height: 760px;
 }
 
 .diagram-frame figcaption {
@@ -206,6 +215,10 @@ select {
 .content-section + .content-section,
 .example-block {
   margin-top: 30px;
+}
+
+.section-diagram {
+  margin: 20px 0 4px;
 }
 
 .content-section h3,
@@ -286,6 +299,14 @@ select {
   }
 
   .diagram-frame iframe {
+    height: 620px;
+  }
+
+  .diagram-frame-tall iframe {
+    height: 760px;
+  }
+
+  .diagram-frame-short iframe {
     height: 500px;
   }
 }
@@ -305,7 +326,7 @@ select {
   }
 
   .article-header h2 {
-    font-size: 30px;
+    font-size: 24px;
   }
 
   .lede {
@@ -313,6 +334,14 @@ select {
   }
 
   .diagram-frame iframe {
-    height: 430px;
+    height: 620px;
+  }
+
+  .diagram-frame-tall iframe {
+    height: 760px;
+  }
+
+  .diagram-frame-short iframe {
+    height: 500px;
   }
 }

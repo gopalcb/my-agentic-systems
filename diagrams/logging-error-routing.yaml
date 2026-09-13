@@ -1,0 +1,36 @@
+title: Error Routing From Logs
+subtitle: Fresh log errors become visible operational state instead of hidden terminal noise.
+diagrams:
+  - type: component_stack
+    title: Error visibility
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - System Log Line
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - runtime log
+          - controller log
+          - messaging log
+      - component: node-only
+        compact: true
+        nodes:
+          - Log Analyzer
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - exact line
+          - file path
+          - nearby context
+      - component: node-only
+        compact: true
+        nodes:
+          - error.detected message
+      - component: double-node-without-bottom-line
+        nodes:
+          - current-error.json
+          - text: fixed archive
+            down_arrow: true
+            down_label: after verified repair

@@ -5,8 +5,15 @@ import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/r
 
 import { ARTICLES, Article } from './articles';
 
+type ViewDiagram = {
+  src: SafeResourceUrl;
+  alt: string;
+  size?: 'short' | 'medium' | 'tall';
+};
+
 type ViewArticle = Article & {
-  trustedDiagram: SafeResourceUrl;
+  trustedDiagram: ViewDiagram;
+  sections: Array<Article['sections'][number] & { trustedDiagram?: ViewDiagram }>;
 };
 
 @Component({
@@ -37,9 +44,9 @@ type ViewArticle = Article & {
           <p class="lede">{{ current.summary }}</p>
         </header>
 
-        <figure class="diagram-frame">
-          <iframe [src]="current.trustedDiagram" [title]="current.diagramAlt"></iframe>
-          <figcaption>{{ current.diagramAlt }}</figcaption>
+        <figure class="diagram-frame" [class.diagram-frame-tall]="current.trustedDiagram.size === 'tall'" [class.diagram-frame-short]="current.trustedDiagram.size === 'short'">
+          <iframe [src]="current.trustedDiagram.src" [title]="current.trustedDiagram.alt" scrolling="no"></iframe>
+          <figcaption>{{ current.trustedDiagram.alt }}</figcaption>
         </figure>
 
         <section class="content-section" *ngFor="let section of current.sections">
@@ -48,6 +55,15 @@ type ViewArticle = Article & {
           <ul *ngIf="section.bullets?.length">
             <li *ngFor="let bullet of section.bullets">{{ bullet }}</li>
           </ul>
+          <figure
+            class="diagram-frame section-diagram"
+            *ngIf="section.trustedDiagram"
+            [class.diagram-frame-tall]="section.trustedDiagram.size === 'tall'"
+            [class.diagram-frame-short]="section.trustedDiagram.size === 'short'"
+          >
+            <iframe [src]="section.trustedDiagram.src" [title]="section.trustedDiagram.alt" scrolling="no"></iframe>
+            <figcaption>{{ section.trustedDiagram.alt }}</figcaption>
+          </figure>
         </section>
 
         <section class="example-block" *ngIf="current.example">
@@ -69,7 +85,21 @@ export class ArticlePageComponent {
   constructor() {
     this.articles = ARTICLES.map((article) => ({
       ...article,
-      trustedDiagram: this.sanitizer.bypassSecurityTrustResourceUrl(article.diagram),
+      trustedDiagram: {
+        src: this.sanitizer.bypassSecurityTrustResourceUrl(article.diagram),
+        alt: article.diagramAlt,
+        size: article.diagramSize,
+      },
+      sections: article.sections.map((section) => ({
+        ...section,
+        trustedDiagram: section.diagram
+          ? {
+              src: this.sanitizer.bypassSecurityTrustResourceUrl(section.diagram.src),
+              alt: section.diagram.alt,
+              size: section.diagram.size,
+            }
+          : undefined,
+      })),
     }));
     this.article = this.articles[0];
 
@@ -81,6 +111,7 @@ export class ArticlePageComponent {
         return;
       }
       this.article = article;
+      window.scrollTo({ top: 0, behavior: 'instant' });
     });
   }
 }

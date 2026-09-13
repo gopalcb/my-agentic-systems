@@ -1,0 +1,38 @@
+title: Memory Retrieval Policy
+subtitle: Relevant active records are ranked and bounded before entering a future agent prompt.
+diagrams:
+  - type: component_stack
+    title: Retrieval detail
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Current Prompt
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - active records
+          - metadata tags
+          - recency weight
+      - component: node-only
+        compact: true
+        nodes:
+          - Lexical Ranker
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - skip superseded
+          - skip rejected
+          - skip needs review
+      - component: node-only
+        compact: true
+        nodes:
+          - Retrieved Project Memory
+      - component: double-node-without-bottom-line
+        nodes:
+          - text: small hit limit
+            down_arrow: true
+            down_label: readable context
+          - text: source remains checked
+            down_arrow: true
+            down_label: no blind trust
