@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 
-import { ARTICLES, Article } from './articles';
+import { ARTICLE_GROUPS, ARTICLES, Article, ArticleGroup, ArticleGroupSlug } from './articles';
 
 type ViewDiagram = {
   src: SafeResourceUrl;
@@ -30,6 +30,7 @@ type ViewArticle = Article & {
     <section class="article-shell">
       <aside class="article-nav" aria-label="Articles">
         <a
+          *ngIf="showControllerDemoLink"
           class="controller-demo-link"
           routerLink="/controller-plane-ui-demo"
           routerLinkActive="active"
@@ -39,12 +40,13 @@ type ViewArticle = Article & {
             View the agent systems controller plane UI with mock data for a high level functional overview.
           </span>
         </a>
-        <p class="section-kicker">Articles</p>
-        <h1>Agentic system development</h1>
+        <p class="section-kicker">{{ activeGroup.kicker }}</p>
+        <h1>{{ activeGroup.title }}</h1>
+        <p class="article-nav-summary">{{ activeGroup.description }}</p>
         <nav>
           <a
             *ngFor="let item of articles"
-            [routerLink]="['/articles', item.slug]"
+            [routerLink]="['/', activeGroup.slug, 'articles', item.slug]"
             routerLinkActive="active"
             [attr.aria-label]="item.title"
           >
@@ -91,15 +93,18 @@ type ViewArticle = Article & {
   `,
 })
 export class ArticlePageComponent {
-  readonly articles: ViewArticle[];
+  readonly allArticles: ViewArticle[];
+  articles: ViewArticle[];
+  activeGroup: ArticleGroup;
   article: ViewArticle;
+  showControllerDemoLink = true;
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
 
   constructor() {
-    this.articles = ARTICLES.map((article) => ({
+    this.allArticles = ARTICLES.map((article) => ({
       ...article,
       trustedDiagram: {
         src: this.sanitizer.bypassSecurityTrustResourceUrl(article.diagram),
@@ -119,13 +124,34 @@ export class ArticlePageComponent {
           : undefined,
       })),
     }));
+    this.activeGroup = ARTICLE_GROUPS[0];
+    this.articles = this.articlesForGroup(this.activeGroup.slug);
     this.article = this.articles[0];
 
     this.route.paramMap.subscribe((params) => {
-      const slug = params.get('slug') ?? ARTICLES[0].slug;
+      const requestedSection = params.get('section') as ArticleGroupSlug | null;
+      const requestedSlug = params.get('slug');
+      const requestedArticle = requestedSlug ? this.allArticles.find((item) => item.slug === requestedSlug) : undefined;
+      const group = this.resolveGroup(requestedSection, requestedArticle?.groupSlug ?? 'codex-agent-system');
+      const slug = requestedSlug ?? group.defaultArticleSlug;
+      const articleFromSlug = this.allArticles.find((item) => item.slug === slug);
+
+      if (!articleFromSlug) {
+        void this.router.navigate(this.groupArticleRoute(group, group.defaultArticleSlug), { replaceUrl: true });
+        return;
+      }
+
+      if (!requestedSection || requestedSection !== group.slug || articleFromSlug.groupSlug !== group.slug) {
+        void this.router.navigate(this.groupArticleRoute(group, articleFromSlug.slug), { replaceUrl: true });
+        return;
+      }
+
+      this.activeGroup = group;
+      this.articles = this.articlesForGroup(group.slug);
+      this.showControllerDemoLink = group.slug === 'codex-agent-system';
       const article = this.articles.find((item) => item.slug === slug);
       if (!article) {
-        void this.router.navigate(['/articles', ARTICLES[0].slug], { replaceUrl: true });
+        void this.router.navigate(this.groupArticleRoute(group, group.defaultArticleSlug), { replaceUrl: true });
         return;
       }
       this.article = article;
@@ -144,5 +170,21 @@ export class ArticlePageComponent {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  }
+
+  private resolveGroup(requestedSection: ArticleGroupSlug | null, fallback: ArticleGroupSlug): ArticleGroup {
+    return (
+      ARTICLE_GROUPS.find((group) => group.slug === requestedSection) ??
+      ARTICLE_GROUPS.find((group) => group.slug === fallback) ??
+      ARTICLE_GROUPS[0]
+    );
+  }
+
+  private articlesForGroup(groupSlug: ArticleGroupSlug): ViewArticle[] {
+    return this.allArticles.filter((article) => article.groupSlug === groupSlug);
+  }
+
+  private groupArticleRoute(group: ArticleGroup, slug: string): string[] {
+    return ['/', group.slug, 'articles', slug];
   }
 }

@@ -5,6 +5,16 @@ export type ArticleSection = {
   diagram?: ArticleDiagram;
 };
 
+export type ArticleGroupSlug = 'codex-agent-system' | 'memory-expansion-plan' | 'diagram-builder';
+
+export type ArticleGroup = {
+  slug: ArticleGroupSlug;
+  title: string;
+  kicker: string;
+  description: string;
+  defaultArticleSlug: string;
+};
+
 export type ArticleDiagram = {
   src: string;
   alt: string;
@@ -13,6 +23,7 @@ export type ArticleDiagram = {
 
 export type Article = {
   slug: string;
+  groupSlug: ArticleGroupSlug;
   title: string;
   kicker: string;
   summary: string;
@@ -27,9 +38,34 @@ export type Article = {
   };
 };
 
+export const ARTICLE_GROUPS: ArticleGroup[] = [
+  {
+    slug: 'codex-agent-system',
+    title: 'Codex agent system',
+    kicker: 'Articles',
+    description: 'The local control plane, messaging, debugger, collaboration, memory, feedback, logging, and controller articles.',
+    defaultArticleSlug: 'why-i-built-my-agent-systems',
+  },
+  {
+    slug: 'memory-expansion-plan',
+    title: 'Memory expansion plan',
+    kicker: 'Architecture plan',
+    description: 'AWS-backed memory architecture and the roadmap for typed, scoped, reviewed, and measured agent memory.',
+    defaultArticleSlug: 'aws-memory-architecture-plan',
+  },
+  {
+    slug: 'diagram-builder',
+    title: 'Diagram builder',
+    kicker: 'Builder notes',
+    description: 'The core YAML-to-HTML diagram builder approach behind the architecture diagrams in this article site.',
+    defaultArticleSlug: 'core-diagram-builder-approach',
+  },
+];
+
 export const ARTICLES: Article[] = [
   {
     slug: 'why-i-built-my-agent-systems',
+    groupSlug: 'codex-agent-system',
     title: 'Building a Local Agent Control Plane Around Codex',
     kicker: 'System profile',
     readingTime: '18 min read',
@@ -134,6 +170,7 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'aws-memory-architecture-plan',
+    groupSlug: 'memory-expansion-plan',
     title: 'AWS Architecture Design Plan for My Codex Agent Memory System',
     kicker: 'Memory expansion plan',
     readingTime: '15 min read',
@@ -227,6 +264,7 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'memory-expansion-roadmap',
+    groupSlug: 'memory-expansion-plan',
     title: 'Memory Expansion Roadmap for My Codex Agent System',
     kicker: 'Memory expansion plan',
     readingTime: '16 min read',
@@ -336,6 +374,7 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'core-diagram-builder-approach',
+    groupSlug: 'diagram-builder',
     title: 'The Core Diagram Builder Behind My Agent Articles',
     kicker: 'Diagram builder',
     readingTime: '12 min read',
@@ -414,6 +453,7 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'internal-messaging',
+    groupSlug: 'codex-agent-system',
     title: 'Inside the Agent Internal Messaging System',
     kicker: 'Messaging foundation',
     readingTime: '16 min read',
@@ -515,6 +555,7 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'ui-debugger-message-passing',
+    groupSlug: 'codex-agent-system',
     title: 'Debugging the UI by Sending a Message',
     kicker: 'Browser evidence',
     readingTime: '12 min read',
@@ -573,6 +614,7 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'agentic-collaboration-patterns',
+    groupSlug: 'codex-agent-system',
     title: 'Agentic Collaboration Patterns That Stay Understandable',
     kicker: 'System design',
     readingTime: '13 min read',
@@ -631,6 +673,7 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'memory-over-time',
+    groupSlug: 'codex-agent-system',
     title: 'Memory Over Time: From Runtime Events to Useful Recall',
     kicker: 'Project memory',
     readingTime: '13 min read',
@@ -688,6 +731,7 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'feedback-loop-memory',
+    groupSlug: 'codex-agent-system',
     title: 'The Feedback Loop That Makes Memory Better',
     kicker: 'Operator learning',
     readingTime: '12 min read',
@@ -745,6 +789,7 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'logging-systems',
+    groupSlug: 'codex-agent-system',
     title: 'Logging Systems That Help Instead of Haunting the Project',
     kicker: 'Observability',
     readingTime: '12 min read',
@@ -803,6 +848,7 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'controller-plane',
+    groupSlug: 'codex-agent-system',
     title: 'The Controller Plane: A Window Into Agent Work',
     kicker: 'Control surface',
     readingTime: '13 min read',
@@ -861,6 +907,7 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'future-memory-integrations',
+    groupSlug: 'codex-agent-system',
     title: 'Future Memory and Integrations for Smarter Agent Systems',
     kicker: 'Roadmap',
     readingTime: '12 min read',

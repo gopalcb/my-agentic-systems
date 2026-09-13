@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet],
   template: `
     <div class="app-page" [class.controller-demo-mode]="controllerDemoMode()">
       @if (!controllerDemoMode()) {
@@ -13,9 +13,24 @@ import { filter } from 'rxjs';
         <div class="topbar-inner">
           <a class="brand-title" href="./">my agent systems</a>
           <nav class="topnav" aria-label="Primary article menus">
-            <a href="./articles/why-i-built-my-agent-systems">Codex agent system</a>
-            <a href="./articles/aws-memory-architecture-plan">Memory expansion plan</a>
-            <a href="./articles/core-diagram-builder-approach">Diagram builder</a>
+            <a
+              routerLink="/codex-agent-system"
+              routerLinkActive="topnav-selected"
+            >
+              Codex agent system
+            </a>
+            <a
+              routerLink="/memory-expansion-plan"
+              routerLinkActive="topnav-selected"
+            >
+              Memory expansion plan
+            </a>
+            <a
+              routerLink="/diagram-builder"
+              routerLinkActive="topnav-selected"
+            >
+              Diagram builder
+            </a>
           </nav>
           <a
             class="github-link"
