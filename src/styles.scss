@@ -154,7 +154,7 @@ select {
 }
 
 .article-header {
-  max-width: 76ch;
+  width: 100%;
   margin-bottom: 16px;
 }
 
@@ -208,7 +208,7 @@ select {
 }
 
 .content-section {
-  max-width: 78ch;
+  width: 100%;
   padding-top: 4px;
 }
 
@@ -263,7 +263,7 @@ select {
 }
 
 .example-block {
-  max-width: 86ch;
+  width: 100%;
   padding: 16px;
   border: 1px solid var(--border);
   background: var(--surface-soft);
