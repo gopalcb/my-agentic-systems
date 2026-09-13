@@ -62,12 +62,20 @@ select {
   top: 0;
   z-index: 20;
   min-height: 54px;
-  display: flex;
-  align-items: center;
   padding: 0 18px;
   border-bottom: 1px solid #29445d;
   background: #08131d;
   color: #e8f0f6;
+}
+
+.topbar-inner {
+  width: min(1260px, 100%);
+  min-height: 54px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
 }
 
 .brand-title {
@@ -76,6 +84,28 @@ select {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.github-link {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #d9e4ed;
+  font-size: 11px;
+  font-weight: 720;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.github-link:hover {
+  color: #ffffff;
+}
+
+.github-mark {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
 }
 
 .workspace {
@@ -330,6 +360,16 @@ select {
 @media (max-width: 560px) {
   .topbar {
     padding: 0 10px;
+  }
+
+  .topbar-inner {
+    gap: 12px;
+  }
+
+  .github-link span {
+    max-width: 116px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .article-nav,

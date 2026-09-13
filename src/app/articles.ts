@@ -31,7 +31,7 @@ export const ARTICLES: Article[] = [
   {
     slug: 'why-i-built-my-agent-systems',
     title: 'Building a Local Agent Control Plane Around Codex',
-    kicker: 'Series opening',
+    kicker: 'System profile',
     readingTime: '18 min read',
     diagram: 'diagrams/personal-agent-system.html',
     diagramAlt: 'High-level view of personal engineering intent flowing into custom agents, structured workflows, memory, feedback, and better future Codex collaboration.',
