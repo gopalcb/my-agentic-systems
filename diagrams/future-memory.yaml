@@ -1,0 +1,36 @@
+title: Future Memory and Integrations
+subtitle: Smarter recall should grow through provenance, policy, and bounded retrieval.
+diagrams:
+  - type: component_stack
+    title: Memory roadmap
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Current Event-Derived Memory
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - run memory
+          - failure memory
+          - strategy memory
+      - component: node-only
+        compact: true
+        nodes:
+          - Hybrid Retrieval Policy
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - lexical exact match
+          - vector similarity
+          - provenance checks
+      - component: node-only
+        compact: true
+        nodes:
+          - External Knowledge Candidates
+      - component: double-node-without-bottom-line
+        nodes:
+          - docs / issues / reviews
+          - text: bounded agent context
+            down_arrow: true
+            down_label: current source wins

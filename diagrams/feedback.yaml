@@ -1,0 +1,34 @@
+title: Feedback Loop and Strategy Memory
+subtitle: Operator review can trigger rework now and better strategy later.
+diagrams:
+  - type: component_stack
+    title: Feedback loop
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Work Result
+      - component: node-with-down-arrow
+        compact: true
+        nodes:
+          - Strategy Feedback Form
+      - component: node-only
+        compact: true
+        nodes:
+          - Feedback Artifact
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - analyzer action
+          - bounded rework
+          - operator approval
+      - component: node-only
+        compact: true
+        nodes:
+          - Strategy Memory Records
+      - component: double-node-without-bottom-line
+        nodes:
+          - next planning step
+          - text: superseded history
+            down_arrow: true
+            down_label: kept but not injected

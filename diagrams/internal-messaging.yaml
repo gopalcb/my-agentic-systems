@@ -1,0 +1,38 @@
+title: Agent Internal Messaging
+subtitle: Durable messages make agent work inspectable while keeping large evidence in artifacts.
+diagrams:
+  - type: component_stack
+    title: Message data flow
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - User or Agent Request
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - Controller API
+          - FastAPI MQ Topics
+          - Agent Message Bus
+      - component: node-only
+        compact: true
+        nodes:
+          - Durable Message Record
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - inbox / processed / failed
+          - records / events.jsonl
+          - task and error records
+      - component: node-only
+        compact: true
+        nodes:
+          - Runtime or Tool Handler
+      - component: double-node-without-bottom-line
+        nodes:
+          - text: Compact Reply
+            down_arrow: true
+            down_label: reply_to thread
+          - text: Large Artifacts
+            down_arrow: true
+            down_label: screenshots, logs, reports

@@ -1,0 +1,38 @@
+title: Agentic Collaboration Patterns
+subtitle: Specialists are useful when their handoffs are explicit and their evidence is durable.
+diagrams:
+  - type: component_stack
+    title: Collaboration map
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - User Request
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - analysis
+          - context
+          - plan
+      - component: node-only
+        compact: true
+        nodes:
+          - system-engineer-agent
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - implementation tools
+          - UI debugger
+          - validation checks
+      - component: node-only
+        compact: true
+        nodes:
+          - RuntimeEvent Stream
+      - component: double-node-without-bottom-line
+        nodes:
+          - text: Operator Feedback
+            down_arrow: true
+            down_label: strategy memory
+          - text: Controller Views
+            down_arrow: true
+            down_label: tasks, messages, logs

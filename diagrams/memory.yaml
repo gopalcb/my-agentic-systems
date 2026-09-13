@@ -1,0 +1,36 @@
+title: Memory Over Time
+subtitle: Useful memory is derived from completed event streams and retrieved with clear limits.
+diagrams:
+  - type: component_stack
+    title: Event-derived memory
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Agent Runtime Run
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - model events
+          - tool events
+          - workflow events
+      - component: node-only
+        compact: true
+        nodes:
+          - EventHub events.jsonl
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - run.json
+          - summary.md
+          - memory_candidates.json
+      - component: node-only
+        compact: true
+        nodes:
+          - MemoryService records
+      - component: double-node-without-bottom-line
+        nodes:
+          - lexical retrieval
+          - text: future agent context
+            down_arrow: true
+            down_label: bounded injection

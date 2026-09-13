@@ -1,0 +1,34 @@
+title: UI Debugger Through Message Passing
+subtitle: Browser evidence is requested by message, captured by Selenium, and returned as compact artifact metadata.
+diagrams:
+  - type: component_stack
+    title: Debug request lifecycle
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Agent or Controller
+      - component: node-with-down-arrow
+        compact: true
+        nodes:
+          - ui_debug_request
+      - component: node-only
+        compact: true
+        nodes:
+          - agent-ui-debugger
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - Selenium screenshot
+          - console output
+          - failed XHR / fetch
+      - component: node-only
+        compact: true
+        nodes:
+          - debug-sessions / request-id
+      - component: double-node-without-bottom-line
+        nodes:
+          - manifest.json
+          - text: ui_debug_request.result
+            down_arrow: true
+            down_label: compact reply

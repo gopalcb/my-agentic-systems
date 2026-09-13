@@ -1,0 +1,35 @@
+title: Controller Plane
+subtitle: The controller makes work visible while the runtime keeps execution authority.
+diagrams:
+  - type: component_stack
+    title: Controller architecture
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Angular Controller UI
+      - component: node-with-down-arrow
+        compact: true
+        nodes:
+          - Nest Controller API
+      - component: node-only
+        compact: true
+        nodes:
+          - Controller Plane
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - path map
+          - data store
+          - change impact
+      - component: node-only
+        compact: true
+        nodes:
+          - Agent Runtime
+      - component: tri-node-without-bottom-line
+        nodes:
+          - workflows
+          - messages
+          - text: memory and logs
+            down_arrow: true
+            down_label: durable state

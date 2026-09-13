@@ -1,0 +1,36 @@
+title: Logging and Observability
+subtitle: Logs, runtime events, browser evidence, and operational errors answer different questions.
+diagrams:
+  - type: component_stack
+    title: Observability layers
+    components:
+      - component: node-only
+        compact: true
+        nodes:
+          - Running Agent System
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - browser logs
+          - backend logs
+          - Python runtime logs
+      - component: node-only
+        compact: true
+        nodes:
+          - .agent-state / logs / system
+      - component: tri-node-component
+        compact: true
+        nodes:
+          - RuntimeEvent stream
+          - log analyzer
+          - UI debugger evidence
+      - component: node-only
+        compact: true
+        nodes:
+          - Operational Error Message
+      - component: double-node-without-bottom-line
+        nodes:
+          - current-error.json
+          - text: controller visibility
+            down_arrow: true
+            down_label: fix and archive
