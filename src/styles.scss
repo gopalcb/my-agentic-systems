@@ -262,6 +262,22 @@ select {
   background: var(--accent);
 }
 
+.content-section code,
+.lede code {
+  display: inline-block;
+  max-width: 100%;
+  padding: 1px 5px;
+  border: 1px solid rgba(36, 123, 95, 0.24);
+  border-radius: 3px;
+  background: #eef7f3;
+  color: #174d3d;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.86em;
+  line-height: 1.35;
+  vertical-align: 0.05em;
+  overflow-wrap: anywhere;
+}
+
 .example-block {
   width: 100%;
   padding: 16px;

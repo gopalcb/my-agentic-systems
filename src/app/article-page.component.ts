@@ -13,7 +13,13 @@ type ViewDiagram = {
 
 type ViewArticle = Article & {
   trustedDiagram: ViewDiagram;
-  sections: Array<Article['sections'][number] & { trustedDiagram?: ViewDiagram }>;
+  sections: Array<
+    Article['sections'][number] & {
+      trustedDiagram?: ViewDiagram;
+      htmlParagraphs: string[];
+      htmlBullets?: string[];
+    }
+  >;
 };
 
 @Component({
@@ -51,9 +57,9 @@ type ViewArticle = Article & {
 
         <section class="content-section" *ngFor="let section of current.sections">
           <h3>{{ section.heading }}</h3>
-          <p *ngFor="let paragraph of section.paragraphs">{{ paragraph }}</p>
+          <p *ngFor="let paragraph of section.htmlParagraphs" [innerHTML]="paragraph"></p>
           <ul *ngIf="section.bullets?.length">
-            <li *ngFor="let bullet of section.bullets">{{ bullet }}</li>
+            <li *ngFor="let bullet of section.htmlBullets" [innerHTML]="bullet"></li>
           </ul>
           <figure
             class="diagram-frame section-diagram"
@@ -92,6 +98,8 @@ export class ArticlePageComponent {
       },
       sections: article.sections.map((section) => ({
         ...section,
+        htmlParagraphs: section.paragraphs.map((paragraph) => this.renderInlineCode(paragraph)),
+        htmlBullets: section.bullets?.map((bullet) => this.renderInlineCode(bullet)),
         trustedDiagram: section.diagram
           ? {
               src: this.sanitizer.bypassSecurityTrustResourceUrl(section.diagram.src),
@@ -113,5 +121,18 @@ export class ArticlePageComponent {
       this.article = article;
       window.scrollTo({ top: 0, behavior: 'instant' });
     });
+  }
+
+  private renderInlineCode(text: string): string {
+    return this.escapeHtml(text).replace(/`([^`]+)`/g, '<code>$1</code>');
+  }
+
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 }
