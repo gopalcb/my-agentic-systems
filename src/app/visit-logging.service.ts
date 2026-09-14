@@ -15,6 +15,8 @@ type VisitLogPayload = {
   page_title: string;
   timestamp: string;
   site: string;
+  visit_source: string;
+  entry_path: string;
   browser: BrowserVisitContext;
 };
 
@@ -54,6 +56,7 @@ type BrowserVisitContext = {
 export class VisitLoggingService {
   private readonly router = inject(Router);
   private readonly visitId = this.createVisitId();
+  private readonly visitAttribution = this.readVisitAttribution();
   private lastLoggedPageLink = '';
 
   constructor() {
@@ -87,6 +90,8 @@ export class VisitLoggingService {
       page_title: document.title,
       timestamp: new Date().toISOString(),
       site: 'my-agentic-systems',
+      visit_source: this.visitAttribution.visitSource,
+      entry_path: this.visitAttribution.entryPath,
       browser: this.readBrowserContext(),
     };
 
@@ -105,6 +110,26 @@ export class VisitLoggingService {
 
   private resolveEndpoint(): string {
     return window.AGENT_SYSTEMS_LOGGING_ENDPOINT?.trim() ?? '';
+  }
+
+  private readVisitAttribution(): { visitSource: string; entryPath: string } {
+    const currentUrl = new URL(window.location.href);
+    const source = currentUrl.searchParams.get('source') ?? currentUrl.searchParams.get('utm_source') ?? '';
+    const entryPath = currentUrl.searchParams.get('entry') ?? '';
+    const isResumeApiEntry = source === 'resume' || entryPath === '/api';
+    const storedSource = window.sessionStorage.getItem('agent-systems-visit-source') ?? '';
+    const storedEntryPath = window.sessionStorage.getItem('agent-systems-entry-path') ?? '';
+
+    if (isResumeApiEntry) {
+      window.sessionStorage.setItem('agent-systems-visit-source', 'resume');
+      window.sessionStorage.setItem('agent-systems-entry-path', entryPath || '/api');
+      return { visitSource: 'resume', entryPath: entryPath || '/api' };
+    }
+
+    return {
+      visitSource: storedSource,
+      entryPath: storedEntryPath,
+    };
   }
 
   private readBrowserContext(): BrowserVisitContext {
