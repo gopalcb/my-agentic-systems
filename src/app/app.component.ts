@@ -2,6 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 
+import { PageViewTrackingService } from './page-view-tracking.service';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -34,7 +36,7 @@ import { filter } from 'rxjs';
           </nav>
           <a
             class="github-link"
-            href="https://github.com/gopalcb/my-agentic-systems"
+            href="https://github.com/gopalcb/monorepo-agentic-soft-engineering"
             target="_blank"
             rel="noreferrer"
             aria-label="View this project on GitHub"
@@ -58,6 +60,7 @@ import { filter } from 'rxjs';
 })
 export class AppComponent {
   private readonly router = inject(Router);
+  private readonly pageViewTracking = inject(PageViewTrackingService);
   readonly controllerDemoMode = signal(this.isControllerDemoRoute(this.router.url));
 
   constructor() {
