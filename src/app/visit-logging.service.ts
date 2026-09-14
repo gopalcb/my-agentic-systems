@@ -15,6 +15,20 @@ type VisitLogPayload = {
   page_title: string;
   timestamp: string;
   site: string;
+  browser: BrowserVisitContext;
+};
+
+type BrowserVisitContext = {
+  timezone: string;
+  timezone_area: string;
+  timezone_city: string;
+  locale: string;
+  country_hint: string;
+  languages: string[];
+  platform: string;
+  screen: string;
+  viewport: string;
+  referrer: string;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -54,6 +68,7 @@ export class VisitLoggingService {
       page_title: document.title,
       timestamp: new Date().toISOString(),
       site: 'my-agentic-systems',
+      browser: this.readBrowserContext(),
     };
 
     void fetch(endpoint, {
@@ -63,7 +78,7 @@ export class VisitLoggingService {
       headers: {
         'content-type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ param: this.encodePayload(payload) }),
     }).catch(() => {
       // Visit logging should never interrupt reading the article site.
     });
@@ -71,6 +86,43 @@ export class VisitLoggingService {
 
   private resolveEndpoint(): string {
     return window.AGENT_SYSTEMS_LOGGING_ENDPOINT?.trim() ?? '';
+  }
+
+  private readBrowserContext(): BrowserVisitContext {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone ?? '';
+    const locale = navigator.language ?? '';
+    const timezoneParts = timezone.split('/');
+
+    return {
+      timezone,
+      timezone_area: timezoneParts[0] ?? '',
+      timezone_city: this.normalizeTimezoneCity(timezoneParts.slice(1).join('/')),
+      locale,
+      country_hint: this.readCountryHint(locale),
+      languages: Array.from(navigator.languages ?? []),
+      platform: navigator.platform ?? '',
+      screen: `${window.screen.width}x${window.screen.height}`,
+      viewport: `${window.innerWidth}x${window.innerHeight}`,
+      referrer: document.referrer,
+    };
+  }
+
+  private readCountryHint(locale: string): string {
+    try {
+      return new Intl.Locale(locale).region ?? '';
+    } catch {
+      const parts = locale.split('-');
+      return parts.length > 1 ? parts.at(-1) ?? '' : '';
+    }
+  }
+
+  private normalizeTimezoneCity(value: string): string {
+    return value.replace(/_/g, ' ');
+  }
+
+  private encodePayload(payload: VisitLogPayload): string {
+    const json = JSON.stringify(payload);
+    return btoa(unescape(encodeURIComponent(json)));
   }
 
   private createVisitId(): string {
