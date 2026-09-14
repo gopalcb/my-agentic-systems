@@ -25,9 +25,28 @@ type BrowserVisitContext = {
   locale: string;
   country_hint: string;
   languages: string[];
+  user_agent: string;
   platform: string;
+  vendor: string;
+  app_name: string;
+  app_code_name: string;
+  app_version: string;
+  product: string;
+  product_sub: string;
+  cookie_enabled: boolean;
+  do_not_track: string;
+  hardware_concurrency: string;
+  device_memory: string;
+  max_touch_points: string;
+  pdf_viewer_enabled: boolean | string;
+  webdriver: boolean;
+  online: boolean;
   screen: string;
+  screen_details: Record<string, string>;
   viewport: string;
+  window_details: Record<string, string>;
+  connection: Record<string, string | boolean>;
+  device_pixel_ratio: string;
   referrer: string;
 };
 
@@ -92,6 +111,16 @@ export class VisitLoggingService {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone ?? '';
     const locale = navigator.language ?? '';
     const timezoneParts = timezone.split('/');
+    const navigatorWithOptionalFields = navigator as Navigator & {
+      connection?: {
+        effectiveType?: string;
+        downlink?: number;
+        rtt?: number;
+        saveData?: boolean;
+      };
+      deviceMemory?: number;
+      pdfViewerEnabled?: boolean;
+    };
 
     return {
       timezone,
@@ -100,9 +129,45 @@ export class VisitLoggingService {
       locale,
       country_hint: this.readCountryHint(locale),
       languages: Array.from(navigator.languages ?? []),
+      user_agent: navigator.userAgent ?? '',
       platform: navigator.platform ?? '',
+      vendor: navigator.vendor ?? '',
+      app_name: navigator.appName ?? '',
+      app_code_name: navigator.appCodeName ?? '',
+      app_version: navigator.appVersion ?? '',
+      product: navigator.product ?? '',
+      product_sub: navigator.productSub ?? '',
+      cookie_enabled: navigator.cookieEnabled,
+      do_not_track: navigator.doNotTrack ?? '',
+      hardware_concurrency: this.stringifyBrowserValue(navigator.hardwareConcurrency),
+      device_memory: this.stringifyBrowserValue(navigatorWithOptionalFields.deviceMemory),
+      max_touch_points: this.stringifyBrowserValue(navigator.maxTouchPoints),
+      pdf_viewer_enabled: navigatorWithOptionalFields.pdfViewerEnabled ?? '',
+      webdriver: navigator.webdriver,
+      online: navigator.onLine,
       screen: `${window.screen.width}x${window.screen.height}`,
+      screen_details: {
+        width: this.stringifyBrowserValue(window.screen.width),
+        height: this.stringifyBrowserValue(window.screen.height),
+        avail_width: this.stringifyBrowserValue(window.screen.availWidth),
+        avail_height: this.stringifyBrowserValue(window.screen.availHeight),
+        color_depth: this.stringifyBrowserValue(window.screen.colorDepth),
+        pixel_depth: this.stringifyBrowserValue(window.screen.pixelDepth),
+      },
       viewport: `${window.innerWidth}x${window.innerHeight}`,
+      window_details: {
+        inner_width: this.stringifyBrowserValue(window.innerWidth),
+        inner_height: this.stringifyBrowserValue(window.innerHeight),
+        outer_width: this.stringifyBrowserValue(window.outerWidth),
+        outer_height: this.stringifyBrowserValue(window.outerHeight),
+      },
+      connection: {
+        effective_type: navigatorWithOptionalFields.connection?.effectiveType ?? '',
+        downlink: this.stringifyBrowserValue(navigatorWithOptionalFields.connection?.downlink),
+        rtt: this.stringifyBrowserValue(navigatorWithOptionalFields.connection?.rtt),
+        save_data: navigatorWithOptionalFields.connection?.saveData ?? false,
+      },
+      device_pixel_ratio: this.stringifyBrowserValue(window.devicePixelRatio),
       referrer: document.referrer,
     };
   }
@@ -118,6 +183,13 @@ export class VisitLoggingService {
 
   private normalizeTimezoneCity(value: string): string {
     return value.replace(/_/g, ' ');
+  }
+
+  private stringifyBrowserValue(value: unknown): string {
+    if (value === undefined || value === null) {
+      return '';
+    }
+    return String(value);
   }
 
   private encodePayload(payload: VisitLogPayload): string {
