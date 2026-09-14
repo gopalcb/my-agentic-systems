@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 
-import { PageViewTrackingService } from './page-view-tracking.service';
+import { VisitLoggingService } from './visit-logging.service';
 
 @Component({
   selector: 'app-root',
@@ -60,7 +60,7 @@ import { PageViewTrackingService } from './page-view-tracking.service';
 })
 export class AppComponent {
   private readonly router = inject(Router);
-  private readonly pageViewTracking = inject(PageViewTrackingService);
+  private readonly visitLogging = inject(VisitLoggingService);
   readonly controllerDemoMode = signal(this.isControllerDemoRoute(this.router.url));
 
   constructor() {

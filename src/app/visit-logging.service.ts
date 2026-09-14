@@ -4,11 +4,11 @@ import { filter } from 'rxjs';
 
 declare global {
   interface Window {
-    AGENT_SYSTEMS_PAGE_VIEW_ENDPOINT?: string;
+    AGENT_SYSTEMS_LOGGING_ENDPOINT?: string;
   }
 }
 
-type PageViewPayload = {
+type VisitLogPayload = {
   visit_id: string;
   page_link: string;
   route: string;
@@ -18,20 +18,20 @@ type PageViewPayload = {
 };
 
 @Injectable({ providedIn: 'root' })
-export class PageViewTrackingService {
+export class VisitLoggingService {
   private readonly router = inject(Router);
   private readonly visitId = this.createVisitId();
-  private lastTrackedPageLink = '';
+  private lastLoggedPageLink = '';
 
   constructor() {
-    window.setTimeout(() => this.trackRoute(this.router.url), 0);
+    window.setTimeout(() => this.logRoute(this.router.url), 0);
 
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-      .subscribe((event) => this.trackRoute(event.urlAfterRedirects));
+      .subscribe((event) => this.logRoute(event.urlAfterRedirects));
   }
 
-  private trackRoute(route: string): void {
+  private logRoute(route: string): void {
     if (typeof window === 'undefined') {
       return;
     }
@@ -42,12 +42,12 @@ export class PageViewTrackingService {
     }
 
     const pageLink = window.location.href;
-    if (pageLink === this.lastTrackedPageLink) {
+    if (pageLink === this.lastLoggedPageLink) {
       return;
     }
-    this.lastTrackedPageLink = pageLink;
+    this.lastLoggedPageLink = pageLink;
 
-    const payload: PageViewPayload = {
+    const payload: VisitLogPayload = {
       visit_id: this.visitId,
       page_link: pageLink,
       route,
@@ -65,12 +65,12 @@ export class PageViewTrackingService {
       },
       body: JSON.stringify(payload),
     }).catch(() => {
-      // Analytics should never disturb reading the article site.
+      // Visit logging should never interrupt reading the article site.
     });
   }
 
   private resolveEndpoint(): string {
-    return window.AGENT_SYSTEMS_PAGE_VIEW_ENDPOINT?.trim() ?? '';
+    return window.AGENT_SYSTEMS_LOGGING_ENDPOINT?.trim() ?? '';
   }
 
   private createVisitId(): string {
