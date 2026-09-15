@@ -114,9 +114,14 @@ export class VisitLoggingService {
 
   private readVisitAttribution(): { visitSource: string; entryPath: string } {
     const currentUrl = new URL(window.location.href);
+    const path = currentUrl.pathname;
     const source = currentUrl.searchParams.get('source') ?? currentUrl.searchParams.get('utm_source') ?? '';
     const entryPath = currentUrl.searchParams.get('entry') ?? '';
-    const isResumeApiEntry = source === 'resume' || entryPath === '/api';
+    const isResumeApiEntry =
+      source === 'resume' ||
+      entryPath === '/api' ||
+      path === '/api' ||
+      path.startsWith('/api/');
     const storedSource = window.sessionStorage.getItem('agent-systems-visit-source') ?? '';
     const storedEntryPath = window.sessionStorage.getItem('agent-systems-entry-path') ?? '';
 
