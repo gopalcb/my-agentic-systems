@@ -1,13 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 
+import { ARTICLES, ArticleGroupSlug } from './articles';
 import { VisitLoggingService } from './visit-logging.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterOutlet],
   template: `
     <div class="app-page" [class.controller-demo-mode]="controllerDemoMode()">
       @if (!controllerDemoMode()) {
@@ -16,27 +17,27 @@ import { VisitLoggingService } from './visit-logging.service';
           <a class="brand-title" href="./">my agent systems</a>
           <nav class="topnav" aria-label="Primary article menus">
             <a
-              routerLink="/codex-agent-system"
-              routerLinkActive="topnav-selected"
+              routerLink="/why-i-built-my-agent-systems"
+              [class.topnav-selected]="activeArticleGroup() === 'codex-agent-system'"
             >
               Codex agent system
             </a>
             <a
-              routerLink="/memory-expansion-plan"
-              routerLinkActive="topnav-selected"
+              routerLink="/aws-memory-architecture-plan"
+              [class.topnav-selected]="activeArticleGroup() === 'memory-expansion-plan'"
             >
               Memory expansion plan
             </a>
             <a
-              routerLink="/diagram-builder"
-              routerLinkActive="topnav-selected"
+              routerLink="/core-diagram-builder-approach"
+              [class.topnav-selected]="activeArticleGroup() === 'diagram-builder'"
             >
               Diagram builder
             </a>
           </nav>
           <a
             class="github-link"
-            href="https://github.com/gopalcb/monorepo-agentic-soft-engineering"
+            href="https://github.com/gopalcb/custom-tools-and-runtime-for-agent-work"
             target="_blank"
             rel="noreferrer"
             aria-label="View this project on GitHub"
@@ -62,14 +63,24 @@ export class AppComponent {
   private readonly router = inject(Router);
   private readonly visitLogging = inject(VisitLoggingService);
   readonly controllerDemoMode = signal(this.isControllerDemoRoute(this.router.url));
+  readonly activeArticleGroup = signal<ArticleGroupSlug | null>(this.articleGroupForUrl(this.router.url));
 
   constructor() {
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-      .subscribe((event) => this.controllerDemoMode.set(this.isControllerDemoRoute(event.urlAfterRedirects)));
+      .subscribe((event) => {
+        this.controllerDemoMode.set(this.isControllerDemoRoute(event.urlAfterRedirects));
+        this.activeArticleGroup.set(this.articleGroupForUrl(event.urlAfterRedirects));
+      });
   }
 
   private isControllerDemoRoute(url: string): boolean {
     return url.startsWith('/controller-plane-ui-demo');
+  }
+
+  private articleGroupForUrl(url: string): ArticleGroupSlug | null {
+    const path = url.split(/[?#]/, 1)[0];
+    const slug = path.split('/').filter(Boolean).at(-1) ?? '';
+    return ARTICLES.find((article) => article.slug === slug)?.groupSlug ?? null;
   }
 }

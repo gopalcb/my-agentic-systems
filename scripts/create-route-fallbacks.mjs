@@ -7,6 +7,18 @@ const docs = join(root, 'docs');
 const indexFile = join(docs, 'index.html');
 
 const routes = [
+  'why-i-built-my-agent-systems',
+  'internal-messaging',
+  'ui-debugger-message-passing',
+  'agentic-collaboration-patterns',
+  'memory-over-time',
+  'feedback-loop-memory',
+  'logging-systems',
+  'controller-plane',
+  'future-memory-integrations',
+  'aws-memory-architecture-plan',
+  'memory-expansion-roadmap',
+  'core-diagram-builder-approach',
   'codex-agent-system',
   'codex-agent-system/articles/why-i-built-my-agent-systems',
   'codex-agent-system/articles/internal-messaging',

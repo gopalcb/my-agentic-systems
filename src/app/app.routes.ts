@@ -9,11 +9,11 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: `${ARTICLE_GROUPS[0].slug}/articles/${ARTICLE_GROUPS[0].defaultArticleSlug}`,
+    redirectTo: ARTICLE_GROUPS[0].defaultArticleSlug,
   },
   { path: 'controller-plane-ui-demo', component: ControllerDemoComponent, children: controllerDemoRoutes },
-  { path: ':section/articles/:slug', component: ArticlePageComponent },
-  { path: 'articles/:slug', component: ArticlePageComponent },
-  { path: ':section', component: ArticlePageComponent },
-  { path: '**', redirectTo: `${ARTICLE_GROUPS[0].slug}/articles/${ARTICLE_GROUPS[0].defaultArticleSlug}` },
+  { path: ':section/articles/:slug', component: ArticlePageComponent, data: { legacyArticleRoute: true } },
+  { path: 'articles/:slug', component: ArticlePageComponent, data: { legacyArticleRoute: true } },
+  { path: ':slug', component: ArticlePageComponent },
+  { path: '**', redirectTo: ARTICLE_GROUPS[0].defaultArticleSlug },
 ];

@@ -46,7 +46,7 @@ type ViewArticle = Article & {
         <nav>
           <a
             *ngFor="let item of articles"
-            [routerLink]="['/', activeGroup.slug, 'articles', item.slug]"
+            [routerLink]="['/', item.slug]"
             routerLinkActive="active"
             [attr.aria-label]="item.title"
           >
@@ -135,14 +135,15 @@ export class ArticlePageComponent {
       const group = this.resolveGroup(requestedSection, requestedArticle?.groupSlug ?? 'codex-agent-system');
       const slug = requestedSlug ?? group.defaultArticleSlug;
       const articleFromSlug = this.allArticles.find((item) => item.slug === slug);
+      const isLegacyArticleRoute = Boolean(this.route.snapshot.data['legacyArticleRoute']);
 
       if (!articleFromSlug) {
-        void this.router.navigate(this.groupArticleRoute(group, group.defaultArticleSlug), { replaceUrl: true });
+        void this.router.navigate(this.articleRoute(group.defaultArticleSlug), { replaceUrl: true });
         return;
       }
 
-      if (!requestedSection || requestedSection !== group.slug || articleFromSlug.groupSlug !== group.slug) {
-        void this.router.navigate(this.groupArticleRoute(group, articleFromSlug.slug), { replaceUrl: true });
+      if (isLegacyArticleRoute || (requestedSection && articleFromSlug.groupSlug !== group.slug)) {
+        void this.router.navigate(this.articleRoute(articleFromSlug.slug), { replaceUrl: true });
         return;
       }
 
@@ -151,7 +152,7 @@ export class ArticlePageComponent {
       this.showControllerDemoLink = group.slug === 'codex-agent-system';
       const article = this.articles.find((item) => item.slug === slug);
       if (!article) {
-        void this.router.navigate(this.groupArticleRoute(group, group.defaultArticleSlug), { replaceUrl: true });
+        void this.router.navigate(this.articleRoute(group.defaultArticleSlug), { replaceUrl: true });
         return;
       }
       this.article = article;
@@ -184,7 +185,7 @@ export class ArticlePageComponent {
     return this.allArticles.filter((article) => article.groupSlug === groupSlug);
   }
 
-  private groupArticleRoute(group: ArticleGroup, slug: string): string[] {
-    return ['/', group.slug, 'articles', slug];
+  private articleRoute(slug: string): string[] {
+    return ['/', slug];
   }
 }

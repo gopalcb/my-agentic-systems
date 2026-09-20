@@ -5,7 +5,8 @@
   "scripts": {
     "start": "ng serve --host localhost --port 4220",
     "build": "ng build --base-href /my-agentic-systems/",
-    "build:pages": "ng build --base-href /my-agentic-systems/ && cp dist/my-agentic-systems/browser/index.html dist/my-agentic-systems/browser/404.html && rm -rf docs && mkdir -p docs && cp -R dist/my-agentic-systems/browser/. docs/ && touch docs/.nojekyll && node scripts/create-route-fallbacks.mjs"
+    "build:pages": "ng build --base-href /my-agentic-systems/ && cp dist/my-agentic-systems/browser/index.html dist/my-agentic-systems/browser/404.html && rm -rf docs && mkdir -p docs && cp -R dist/my-agentic-systems/browser/. docs/ && touch docs/.nojekyll && node scripts/create-route-fallbacks.mjs",
+    "build:profile": "ng build --base-href /agents/ && cp dist/my-agentic-systems/browser/index.html dist/my-agentic-systems/browser/404.html && rm -rf docs && mkdir -p docs && cp -R dist/my-agentic-systems/browser/. docs/ && touch docs/.nojekyll && node scripts/create-route-fallbacks.mjs"
   },
   "dependencies": {
     "@angular/common": "^20.3.0",
