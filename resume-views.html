@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page Details</title>
+  <style>
+    :root { --bg:#f4f6f8; --surface:#fff; --soft:#eef2f6; --text:#20242a; --muted:#59616b; --border:#d8dee6; --accent:#247b5f; --danger:#9a3932; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:linear-gradient(180deg,#f8fafc,var(--bg)); color:var(--text); font:13px Inter,ui-sans-serif,sans-serif; }
+    .page { width:min(980px,calc(100% - 28px)); margin:auto; padding:24px 0; }
+    header { display:flex; justify-content:space-between; align-items:end; gap:16px; margin-bottom:14px; }
+    h1 { margin:0 0 5px; font-size:24px; }
+    .muted,.status { color:var(--muted); }
+    .panel { border:1px solid var(--border); border-radius:5px; background:var(--surface); box-shadow:0 8px 20px rgba(26,35,45,.055); }
+    .toolbar { display:grid; grid-template-columns:1fr 180px 150px auto; gap:10px; padding:12px; margin-bottom:12px; }
+    label { display:grid; gap:5px; color:var(--muted); font-size:11px; font-weight:760; letter-spacing:.06em; text-transform:uppercase; }
+    input,select,button { min-height:34px; border:1px solid var(--border); border-radius:4px; background:#fff; color:var(--text); font:inherit; }
+    input,select { padding:0 10px; }
+    button { align-self:end; padding:0 14px; background:var(--accent); color:#fff; font-weight:780; cursor:pointer; }
+    button:disabled { opacity:.7; cursor:wait; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; }
+    .stat { padding:14px; }
+    .stat strong { display:block; font-size:22px; }
+    .stat span { color:var(--muted); }
+    .status { min-height:19px; }
+    .status.error { color:var(--danger); }
+    .table-wrap { overflow:auto; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { padding:10px; border-bottom:1px solid var(--border); text-align:left; }
+    th { background:var(--soft); color:var(--muted); font-size:11px; text-transform:uppercase; }
+    .mono { font-family:"SFMono-Regular",Consolas,monospace; overflow-wrap:anywhere; }
+    @media(max-width:700px) { header,.toolbar { display:grid; grid-template-columns:1fr; } .stats { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div><h1>Page Details</h1><p class="muted">Only visit ID, timestamp, and timezone are stored.</p></div>
+      <p class="muted" id="updatedAt">Not loaded yet</p>
+    </header>
+    <section class="toolbar panel">
+      <label>Search<input id="searchInput" type="search" placeholder="visit id or timezone"></label>
+      <label>Group by<select id="groupBySelect"><option value="none">No grouping</option><option value="day">Day</option><option value="visit_id">Visit ID</option><option value="timezone">Timezone</option></select></label>
+      <label>Limit<select id="limitSelect"><option value="100">100 rows</option><option value="250" selected>250 rows</option><option value="500">500 rows</option><option value="1000">1000 rows</option></select></label>
+      <button id="refreshButton" type="button">Refresh</button>
+    </section>
+    <section class="stats">
+      <div class="stat panel"><strong id="totalViews">0</strong><span>Total views</span></div>
+      <div class="stat panel"><strong id="uniqueVisits">0</strong><span>Unique visits</span></div>
+      <div class="stat panel"><strong id="uniqueTimezones">0</strong><span>Timezones</span></div>
+    </section>
+    <p class="status" id="statusText"></p>
+    <section class="table-wrap panel"><table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></section>
+  </main>
+  <script>
+    const AWS_ENDPOINT = 'https://igemd005z8.execute-api.ca-central-1.amazonaws.com/page-details-load';
+    const ENDPOINT = ['127.0.0.1', 'localhost'].includes(location.hostname) ? '/api/visits' : AWS_ENDPOINT;
+    const state = { rows: [], search: '', groupBy: 'none', limit: 250 };
+    const elements = Object.fromEntries(['searchInput','groupBySelect','limitSelect','refreshButton','tableHead','tableBody','statusText','updatedAt','totalViews','uniqueVisits','uniqueTimezones'].map(id => [id, document.getElementById(id)]));
+
+    elements.searchInput.addEventListener('input', () => { state.search = elements.searchInput.value.trim().toLowerCase(); render(); });
+    elements.groupBySelect.addEventListener('change', () => { state.groupBy = elements.groupBySelect.value; render(); });
+    elements.limitSelect.addEventListener('change', () => { state.limit = Number(elements.limitSelect.value); loadRows(); });
+    elements.refreshButton.addEventListener('click', loadRows);
+    loadRows();
+
+    async function loadRows() {
+      setStatus('Loading page details...');
+      elements.refreshButton.disabled = true;
+      try {
+        const response = await fetch(`${ENDPOINT}?limit=${state.limit}`, { method: 'GET', mode: 'cors' });
+        if (!response.ok) throw new Error(`Request failed with HTTP ${response.status}`);
+        const payload = await response.json();
+        state.rows = Array.isArray(payload.items) ? payload.items : [];
+        elements.updatedAt.textContent = `Loaded ${new Date().toLocaleString()}`;
+        setStatus(`Loaded ${state.rows.length} rows.`);
+        render();
+      } catch (error) {
+        setStatus(error.message, true);
+      } finally {
+        elements.refreshButton.disabled = false;
+      }
+    }
+
+    function render() {
+      const rows = state.rows.filter(row => !state.search || [row.visit_id,row.timestamp,row.timezone].join(' ').toLowerCase().includes(state.search));
+      elements.totalViews.textContent = rows.length.toLocaleString();
+      elements.uniqueVisits.textContent = new Set(rows.map(row => row.visit_id).filter(Boolean)).size.toLocaleString();
+      elements.uniqueTimezones.textContent = new Set(rows.map(row => row.timezone).filter(Boolean)).size.toLocaleString();
+      if (state.groupBy === 'none') renderRows(rows); else renderGroups(groupRows(rows));
+    }
+
+    function renderRows(rows) {
+      elements.tableHead.innerHTML = '<tr><th>Visit ID</th><th>Timestamp</th><th>Timezone</th></tr>';
+      elements.tableBody.innerHTML = rows.map(row => `<tr><td class="mono">${escapeHtml(row.visit_id)}</td><td>${escapeHtml(formatDate(row.timestamp))}</td><td>${escapeHtml(row.timezone)}</td></tr>`).join('');
+    }
+
+    function groupRows(rows) {
+      const groups = new Map();
+      for (const row of rows) {
+        const key = state.groupBy === 'day' ? String(row.timestamp || '').slice(0, 10) : row[state.groupBy];
+        const bucket = groups.get(key || 'unknown') || [];
+        bucket.push(row);
+        groups.set(key || 'unknown', bucket);
+      }
+      return Array.from(groups.entries()).map(([key, groupedRows]) => ({ key, rows: groupedRows, lastSeen: groupedRows.map(row => row.timestamp || '').sort().at(-1) || '' })).sort((a,b) => b.lastSeen.localeCompare(a.lastSeen));
+    }
+
+    function renderGroups(groups) {
+      elements.tableHead.innerHTML = '<tr><th>Group</th><th>Views</th><th>Unique visits</th><th>Last seen</th></tr>';
+      elements.tableBody.innerHTML = groups.map(group => `<tr><td class="mono">${escapeHtml(group.key)}</td><td>${group.rows.length}</td><td>${new Set(group.rows.map(row => row.visit_id)).size}</td><td>${escapeHtml(formatDate(group.lastSeen))}</td></tr>`).join('');
+    }
+
+    function formatDate(value) { const date = new Date(value); return Number.isNaN(date.getTime()) ? value || '' : date.toLocaleString(); }
+    function setStatus(message, error = false) { elements.statusText.textContent = message; elements.statusText.classList.toggle('error', error); }
+    function escapeHtml(value) { return String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+  </script>
+</body>
+</html>
